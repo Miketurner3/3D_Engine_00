@@ -35,85 +35,6 @@ namespace _3D_Engine_00
             vertices[2] = vertsy[2];
         }
 
-        public Triangle ClockwiseSort()
-        {
-            Triangle ClockwiseTri;
-            List<Vertex> originalvertexList = vertices.OrderByDescending(v => v.vector.y).ToList();
-            List<Vertex> alteredList = new List<Vertex>(3);
-            List<Vertex> SortedList = new List<Vertex>(3);
-
-            // top + bottom triangle 
-            if (originalvertexList[0].vector.y == originalvertexList[1].vector.y)
-            {
-                alteredList.Add(originalvertexList[0]);
-                alteredList.Add(originalvertexList[1]);
-
-                SortedList = alteredList.OrderByDescending(v => v.vector.x).ToList();
-
-                SortedList.Add(originalvertexList[2]);
-            }
-            else if (originalvertexList[1].vector.y == originalvertexList[2].vector.y)
-            {
-                alteredList.Add(originalvertexList[1]);
-                alteredList.Add(originalvertexList[2]);
-
-                SortedList = alteredList.OrderBy(v => v.vector.x).ToList();
-
-                SortedList.Add(originalvertexList[0]);
-            }
-
-            //irregular triangle
-            else if (originalvertexList[0].vector.y != originalvertexList[1].vector.y && originalvertexList[1].vector.y != originalvertexList[2].vector.y)
-            {
-                alteredList = originalvertexList.OrderBy(v => v.vector.y).ToList();
-
-                SortedList.Add(alteredList[0]);
-
-                alteredList.RemoveAt(0);
-                alteredList = alteredList.OrderByDescending(v => v.vector.x).ToList();
-
-                SortedList.Add(alteredList[0]);
-                SortedList.Add(alteredList[1]);
-            }
-
-            //z-flat triangle
-            else if ((originalvertexList[0].vector.y == originalvertexList[1].vector.y && originalvertexList[1].vector.y == originalvertexList[2].vector.y))
-            {
-                originalvertexList = vertices.OrderByDescending(v => v.vector.z).ToList();
-
-                if (originalvertexList[0].vector.z == originalvertexList[1].vector.z)
-                {
-                    alteredList.Add(originalvertexList[0]);
-                    alteredList.Add(originalvertexList[1]);
-
-                    SortedList = alteredList.OrderBy(v => v.vector.x).ToList();
-
-                    SortedList.Add(originalvertexList[2]);
-                }
-                else if (originalvertexList[1].vector.z == originalvertexList[2].vector.z)
-                {
-                    alteredList.Add(originalvertexList[1]);
-                    alteredList.Add(originalvertexList[2]);
-
-                    SortedList = alteredList.OrderByDescending(v => v.vector.x).ToList();
-
-                    SortedList.Add(originalvertexList[0]);
-                }
-                else
-                {
-                    SortedList.Add(originalvertexList[0]);
-                    originalvertexList.RemoveAt(0);
-
-                    alteredList = originalvertexList.OrderByDescending(v => v.vector.x).ToList();
-
-                    SortedList.Add(originalvertexList[0]);
-                    SortedList.Add(originalvertexList[1]);
-                }
-            }
-
-            return ClockwiseTri = new Triangle(SortedList[0], SortedList[1], SortedList[2], color);
-        }
-        
         public Triangle[] SplitTriangle()
         {
             if (Math.Round(vertices[0].vector.y) == Math.Round(vertices[1].vector.y) || Math.Round(vertices[1].vector.y) == Math.Round(vertices[2].vector.y))
@@ -218,7 +139,7 @@ namespace _3D_Engine_00
             }
         }
         
-        public float[,] DrawZValuesInEachPixelForLine(Vector3[] EdgePixles, float[,] Z_Buffer, Graphics e)
+        public float[,] DrawZValuesInEachPixelForLine(Vector3[] EdgePixles, float[,] Z_Buffer, Graphics e, int W, int H)
         {
 
             int x1 = Convert.ToInt32(EdgePixles[0].x);
@@ -255,7 +176,7 @@ namespace _3D_Engine_00
                     ZValue = z1 + ((float)(z2 - z1) / (x2 - x1)) * (X_Level - x1);
                 }
 
-                if (X_Level >= 600 || X_Level < 0 || Y_Level >= 600 || Y_Level < 0) 
+                if (X_Level >=  W || X_Level < 0 || Y_Level >=  H || Y_Level < 0) 
                 { 
                     break; 
                 }

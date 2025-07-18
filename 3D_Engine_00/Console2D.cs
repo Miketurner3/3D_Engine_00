@@ -14,6 +14,7 @@ using System.Drawing.Configuration;
 using System.Reflection;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Runtime.CompilerServices;
 
 namespace _3D_Engine_00
 {
@@ -21,16 +22,15 @@ namespace _3D_Engine_00
     public partial class Console_2D : Form
     {
         Vector3 RoXYZ = new Vector3(3, 5, 0);
-        float ScaleFactor = 160;
 
         public static int ScreenWidth = 600;
         public static int ScreenHeight = 600;
         public float[,] Z_Buffer = new float[ScreenWidth, ScreenHeight];
 
         float FOV = 90.0f;
-        float AspectRatio = ScreenHeight / ScreenWidth;
+        float AspectRatio = (float)ScreenWidth / ScreenHeight;
         float Far = 1000.0f;
-        float Near = 0.1f;
+        float Near = 0.5f;
 
         Triangle triangle;
         List<Triangle> Triangles = new List<Triangle>();
@@ -61,24 +61,23 @@ namespace _3D_Engine_00
         {
             // CUBE --- 6 SIDES : 12 TRIANGLES : 36 VERTICIES --- CUBE
 
-            //front
             Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 0), new Vertex(0, 1, 0), new Vertex(1, 1, 0), Color.White));
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 0), new Vertex(1, 0, 0), new Vertex(1, 1, 0), Color.White));
-            //back
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(0, 1, 1), new Vertex(1, 1, 1), Color.Yellow));
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(1, 0, 1), new Vertex(1, 1, 1), Color.Yellow));
-            //left
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 0), new Vertex(0, 1, 0), new Vertex(0, 1, 1), Color.Teal));
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(0, 0, 0), new Vertex(0, 1, 1), Color.Teal));
-            //right
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 0), new Vertex(1, 1, 0), new Vertex(1, 1, 1), Color.Green));
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(1, 0, 0), new Vertex(1, 1, 1), Color.Green));
-            //top
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 1), new Vertex(1, 0, 0), Color.Blue));
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(1, 0, 1), new Vertex(1, 0, 0), Color.Blue));
-            //bottom
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 0), new Vertex(0, 1, 1), new Vertex(1, 1, 0), Color.Red));
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 1), new Vertex(1, 1, 1), new Vertex(1, 1, 0), Color.Red));
+            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 0), new Vertex(1, 1, 0), new Vertex(1, 0, 0), Color.White));
+
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 0), new Vertex(1, 1, 0), new Vertex(1, 1, 1), Color.Yellow));
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 0), new Vertex(1, 1, 1), new Vertex(1, 0, 1), Color.Yellow));
+
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(1, 1, 1), new Vertex(0, 1, 1), Color.Purple));
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 1, 1), new Vertex(0, 0, 1), Color.Purple));
+
+            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(0, 1, 1), new Vertex(0, 1, 0), Color.Green));
+            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(0, 1, 0), new Vertex(0, 0, 0), Color.Green));
+
+            Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 0), new Vertex(0, 1, 1), new Vertex(1, 1, 1), Color.Blue));
+            Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 0), new Vertex(1, 1, 1), new Vertex(1, 1, 0), Color.Blue));
+
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 1), new Vertex(0, 0, 0), Color.Red));
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 0), new Vertex(1, 0, 0), Color.Red));
         }
         
         private void SetBuffer()
@@ -90,7 +89,6 @@ namespace _3D_Engine_00
         
         private void Console_2D_Paint(object sender, PaintEventArgs e)
         {
-            Triangle Triangle;
             SetBuffer();
 
             foreach (Triangle i in Triangles)
@@ -98,53 +96,68 @@ namespace _3D_Engine_00
                 // - Transform -
                 RotateXYZ(i);
 
-                // - Scaling -
-                Triangle = Scaling(i);
-
-                // - Perspective Projection -
-                Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
-
                 // - backface culling -
-                Triangle = BackfaceCulling(Triangle);
+                if (BackfaceCulling(i))
+                {
+                    Triangle Triangle;
 
-                // - lighting -
-                ////Lighting();
+                    // - Perspective Projection -
+                    Triangle = Projection(i, FOV, AspectRatio, Near, Far);
 
-                // - Draw Triangle - 
-                DrawingTriangles(Triangle, e);
+                    // - Scaling -
+                    Triangle = Scaling(Triangle);
 
+                    // - lighting -
+                    ////Lighting();
 
-
-
-                ////Pen pen = new Pen(Color.Brown);
-                ////GraphicsPath path = new GraphicsPath();
-                ////PointF[] points = new PointF[3];
-
-
-                ////for (int ip = 0; ip < 3; ip++)
-                ////{
-                ////    points[ip] = new PointF((float)Triangle.vertices[ip].vector.x, (float)Triangle.vertices[ip].vector.y);
-                ////}
-                ////path.AddPolygon(points);
-                ////e.Graphics.DrawPath(Pens.Brown, path);
+                    // - Draw Triangle - 
+                    DrawingTriangles(Triangle, e);
+                }
             }
         }
         
-        private Triangle BackfaceCulling(Triangle TriBackface)
+        private bool BackfaceCulling(Triangle Triangle)
         {
-            TriBackface = TriBackface.ClockwiseSort();
 
-            //TriBackface = TriBackface.CrossProduct();
+            Vector3 Line1;
+            Line1.x = Triangle.vertices[0].vector.x - Triangle.vertices[1].vector.x;
+            Line1.y = Triangle.vertices[0].vector.y - Triangle.vertices[1].vector.y;
+            Line1.z = Triangle.vertices[0].vector.z - Triangle.vertices[1].vector.z;
 
-            return TriBackface;
+            Vector3 Line2;
+            Line2.x = Triangle.vertices[0].vector.x - Triangle.vertices[2].vector.x;
+            Line2.y = Triangle.vertices[0].vector.y - Triangle.vertices[2].vector.y;
+            Line2.z = Triangle.vertices[0].vector.z - Triangle.vertices[2].vector.z;
+
+            // Cross product
+            Vector3 normal;
+            normal.x = (Line1.y * Line2.z) - (Line1.z * Line2.y);
+            normal.y = (Line1.z * Line2.x) - (Line1.x * Line2.z);
+            normal.z = (Line1.x * Line2.y) - (Line1.y * Line2.x);
+
+            // Normalize
+            double length = Math.Sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+            normal.x /= length;
+            normal.y /= length;
+            normal.z /= length;
+ 
+            if (normal.z < 0 )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
+      
         private Triangle Scaling(Triangle i)
         {
             Triangle TriScaled = new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0), Color.White);
 
-            TriScaled.vertices[0] = i.vertices[0].Scale(ScreenWidth, ScreenHeight, ScaleFactor);
-            TriScaled.vertices[1] = i.vertices[1].Scale(ScreenWidth, ScreenHeight, ScaleFactor);
-            TriScaled.vertices[2] = i.vertices[2].Scale(ScreenWidth, ScreenHeight, ScaleFactor);
+            TriScaled.vertices[0] = i.vertices[0].Scale(ScreenWidth, ScreenHeight);
+            TriScaled.vertices[1] = i.vertices[1].Scale(ScreenWidth, ScreenHeight);
+            TriScaled.vertices[2] = i.vertices[2].Scale(ScreenWidth, ScreenHeight);
             TriScaled.color = i.color;
 
             return TriScaled;
@@ -205,7 +218,7 @@ namespace _3D_Engine_00
             for (int Y_Level = minY; Y_Level <= maxY + 0; Y_Level++)
             {
                 Vector3[] EdgePixlesForLine = Triangle.FindEdgePixles(Y_Level, TriState);
-                Z_Buffer = Triangle.DrawZValuesInEachPixelForLine(EdgePixlesForLine, Z_Buffer, e.Graphics);
+                Z_Buffer = Triangle.DrawZValuesInEachPixelForLine(EdgePixlesForLine, Z_Buffer, e.Graphics, ScreenWidth, ScreenHeight);
             }
         }
     }

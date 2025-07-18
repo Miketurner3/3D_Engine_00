@@ -64,7 +64,7 @@ namespace _3D_Engine_00
         
         public Vertex ProjectionMatrix(float FOV, float AspectRatio, float Far , float Near)
         {
-            double FOVRAD = 1 / Math.Tan(FOV * 0.5 / 180 * Math.PI);
+            double FOVRAD = (FOV * 0.5) * (Math.PI / 180);
             
             double x = vector.x * AspectRatio * FOVRAD;
             double y = vector.y * FOVRAD;
@@ -76,7 +76,7 @@ namespace _3D_Engine_00
             return new Vertex(x,y,vector.z);
         }
         
-        internal Vertex Scale(float H, float W, float ScaleFactor)
+        internal Vertex Scale(float H, float W)
         {
             double x = vector.x;
             double y = vector.y;
@@ -86,8 +86,8 @@ namespace _3D_Engine_00
             y = y + 1;
             z = z * 100;
 
-            x = x * W;
-            y = y * H;
+            x = x * W/2;
+            y = y * H/2;
 
             return new Vertex(x,y,z);
         }
