@@ -30,7 +30,9 @@ namespace _3D_Engine_00
         float FOV = 90.0f;
         float AspectRatio = (float)ScreenWidth / ScreenHeight;
         float Far = 1000.0f;
-        float Near = 0.5f;
+        float Near = 1.0f;
+
+        Vector3 Camera ;
 
         Triangle triangle;
         List<Triangle> Triangles = new List<Triangle>();
@@ -52,7 +54,7 @@ namespace _3D_Engine_00
             this.Height = ScreenHeight;
             this.DoubleBuffered = true;
             timer1.Enabled = true;
-            timer1.Interval = 50;
+            timer1.Interval = 100;
 
             AddTriangleVerticies(ScreenWidth/2, ScreenHeight/2);
         }
@@ -102,10 +104,10 @@ namespace _3D_Engine_00
                     Triangle Triangle;
 
                     // - Perspective Projection -
-                    Triangle = Projection(i, FOV, AspectRatio, Near, Far);
+                    //Triangle = Projection(i, FOV, AspectRatio, Near, Far);
 
                     // - Scaling -
-                    Triangle = Scaling(Triangle);
+                    Triangle = Scaling(i);
 
                     // - lighting -
                     ////Lighting();
@@ -141,7 +143,7 @@ namespace _3D_Engine_00
             normal.y /= length;
             normal.z /= length;
  
-            if (normal.z < 0 )
+            if (normal.z < 0)
             {
                 return true;
             }
@@ -149,6 +151,10 @@ namespace _3D_Engine_00
             {
                 return false;
             }
+            
+            //normal.x * (Triangle.vertices[0].vector.x - Camera.x) +
+            //    normal.y * (Triangle.vertices[0].vector.y - Camera.y) +
+            //    normal.z * (Triangle.vertices[0].vector.z - Camera.z) < 0.0f
         }
       
         private Triangle Scaling(Triangle i)
