@@ -18,6 +18,7 @@ namespace _3D_Engine_00
         {
             vector = new Vector3(X, Y, Z);
         }
+        
         public void RotateX(double A)
         {
             double x = vector.x;
@@ -32,6 +33,7 @@ namespace _3D_Engine_00
 
             
         }
+
         public void RotateY(double A)
         {
             double x = vector.x;
@@ -46,6 +48,7 @@ namespace _3D_Engine_00
 
        
         }
+        
         public void RotateZ(double A)
         {
             double x = vector.x;
@@ -58,6 +61,7 @@ namespace _3D_Engine_00
             vector.y = (x * -Math.Sin(R)) + (y * Math.Cos(R)) + (z * 0);
             vector.z = (x * 0) + (y * 0) + (z * 1);
         }
+        
         public Vertex ProjectionMatrix(float FOV, float AspectRatio, float Far , float Near)
         {
             double FOVRAD = 1 / Math.Tan(FOV * 0.5 / 180 * Math.PI);
@@ -71,6 +75,7 @@ namespace _3D_Engine_00
 
             return new Vertex(x,y,vector.z);
         }
+        
         internal Vertex Scale(float H, float W, float ScaleFactor)
         {
             double x = vector.x;

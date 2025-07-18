@@ -13,6 +13,7 @@ namespace _3D_Engine_00
     {
         public Vertex[] vertices = new Vertex[3];
         public Color color;
+        
         public Triangle(Vertex v1, Vertex v2, Vertex v3, Color color_)
         {
             {
@@ -23,7 +24,9 @@ namespace _3D_Engine_00
                 color = color_;
             }
         }
+        
         public Color GetColor() { return color; }
+        
         public void SortVerticies()
         {
             List<Vertex> vertsy = vertices.OrderBy(v => v.vector.y).ToList();
@@ -31,8 +34,10 @@ namespace _3D_Engine_00
             vertices[1] = vertsy[1];
             vertices[2] = vertsy[2];
         }
-        public void ClockwiseSort()
+
+        public Triangle ClockwiseSort()
         {
+            Triangle ClockwiseTri;
             List<Vertex> originalvertexList = vertices.OrderByDescending(v => v.vector.y).ToList();
             List<Vertex> alteredList = new List<Vertex>(3);
             List<Vertex> SortedList = new List<Vertex>(3);
@@ -40,8 +45,8 @@ namespace _3D_Engine_00
             // top + bottom triangle 
             if (originalvertexList[0].vector.y == originalvertexList[1].vector.y)
             {
-                alteredList.Add (originalvertexList[0]);
-                alteredList.Add (originalvertexList[1]);
+                alteredList.Add(originalvertexList[0]);
+                alteredList.Add(originalvertexList[1]);
 
                 SortedList = alteredList.OrderByDescending(v => v.vector.x).ToList();
 
@@ -74,9 +79,41 @@ namespace _3D_Engine_00
             //z-flat triangle
             else if ((originalvertexList[0].vector.y == originalvertexList[1].vector.y && originalvertexList[1].vector.y == originalvertexList[2].vector.y))
             {
+                originalvertexList = vertices.OrderByDescending(v => v.vector.z).ToList();
 
+                if (originalvertexList[0].vector.z == originalvertexList[1].vector.z)
+                {
+                    alteredList.Add(originalvertexList[0]);
+                    alteredList.Add(originalvertexList[1]);
+
+                    SortedList = alteredList.OrderBy(v => v.vector.x).ToList();
+
+                    SortedList.Add(originalvertexList[2]);
+                }
+                else if (originalvertexList[1].vector.z == originalvertexList[2].vector.z)
+                {
+                    alteredList.Add(originalvertexList[1]);
+                    alteredList.Add(originalvertexList[2]);
+
+                    SortedList = alteredList.OrderByDescending(v => v.vector.x).ToList();
+
+                    SortedList.Add(originalvertexList[0]);
+                }
+                else
+                {
+                    SortedList.Add(originalvertexList[0]);
+                    originalvertexList.RemoveAt(0);
+
+                    alteredList = originalvertexList.OrderByDescending(v => v.vector.x).ToList();
+
+                    SortedList.Add(originalvertexList[0]);
+                    SortedList.Add(originalvertexList[1]);
+                }
             }
+
+            return ClockwiseTri = new Triangle(SortedList[0], SortedList[1], SortedList[2], color);
         }
+        
         public Triangle[] SplitTriangle()
         {
             if (Math.Round(vertices[0].vector.y) == Math.Round(vertices[1].vector.y) || Math.Round(vertices[1].vector.y) == Math.Round(vertices[2].vector.y))
@@ -103,6 +140,7 @@ namespace _3D_Engine_00
 
             return SplitTList;
         }
+        
         public Vector3[] FindEdgePixles(int y, int TriState)
         {
             Vector3[] EdgePixles = new Vector3[2];
@@ -179,6 +217,7 @@ namespace _3D_Engine_00
                 return null;
             }
         }
+        
         public float[,] DrawZValuesInEachPixelForLine(Vector3[] EdgePixles, float[,] Z_Buffer, Graphics e)
         {
 
@@ -230,6 +269,7 @@ namespace _3D_Engine_00
 
             return Z_Buffer;
         }
+        
         public void DrawPixel(int X, int Y, Graphics e)
         {
             Brush brush = new SolidBrush(color);

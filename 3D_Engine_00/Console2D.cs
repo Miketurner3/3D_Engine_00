@@ -13,6 +13,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Configuration;
 using System.Reflection;
 using System.IO;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace _3D_Engine_00
 {
@@ -33,14 +34,17 @@ namespace _3D_Engine_00
 
         Triangle triangle;
         List<Triangle> Triangles = new List<Triangle>();
+
         public Console_2D()
         {
             InitializeComponent();
         }
+        
         private void timer1_Tick(object sender, EventArgs e)
         {
             Invalidate();
         }
+        
         private void Console_Load(object sender, EventArgs e)
         {
             this.BackColor = Color.Black;
@@ -52,6 +56,7 @@ namespace _3D_Engine_00
 
             AddTriangleVerticies(ScreenWidth/2, ScreenHeight/2);
         }
+        
         private void AddTriangleVerticies(int CW, int CH)
         {
             // CUBE --- 6 SIDES : 12 TRIANGLES : 36 VERTICIES --- CUBE
@@ -75,12 +80,14 @@ namespace _3D_Engine_00
             Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 0), new Vertex(0, 1, 1), new Vertex(1, 1, 0), Color.Red));
             Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 1), new Vertex(1, 1, 1), new Vertex(1, 1, 0), Color.Red));
         }
+        
         private void SetBuffer()
         {
             for (int y = 0; y < ScreenHeight; y++)
                 for (int x = 0; x < ScreenWidth; x++)
                     Z_Buffer[x, y] = float.MaxValue;
         }
+        
         private void Console_2D_Paint(object sender, PaintEventArgs e)
         {
             Triangle Triangle;
@@ -88,8 +95,6 @@ namespace _3D_Engine_00
 
             foreach (Triangle i in Triangles)
             {
-                i.ClockwiseSort();
-
                 // - Transform -
                 RotateXYZ(i);
 
@@ -100,7 +105,7 @@ namespace _3D_Engine_00
                 Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
 
                 // - backface culling -
-                ////BackfaceCulling();
+                Triangle = BackfaceCulling(Triangle);
 
                 // - lighting -
                 ////Lighting();
@@ -124,6 +129,15 @@ namespace _3D_Engine_00
                 ////e.Graphics.DrawPath(Pens.Brown, path);
             }
         }
+        
+        private Triangle BackfaceCulling(Triangle TriBackface)
+        {
+            TriBackface = TriBackface.ClockwiseSort();
+
+            //TriBackface = TriBackface.CrossProduct();
+
+            return TriBackface;
+        }
         private Triangle Scaling(Triangle i)
         {
             Triangle TriScaled = new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0), Color.White);
@@ -135,6 +149,7 @@ namespace _3D_Engine_00
 
             return TriScaled;
         }
+        
         private Triangle Projection(Triangle Triangle, float FOV, float AspectRatio, float Near, float Far)
         {
             Triangle TriProjected = new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0), Color.White);
@@ -146,6 +161,7 @@ namespace _3D_Engine_00
 
             return TriProjected;
         }
+        
         private void RotateXYZ(Triangle i)
         {
             i.vertices[0].RotateX(RoXYZ.x);
@@ -160,6 +176,7 @@ namespace _3D_Engine_00
             i.vertices[2].RotateY(RoXYZ.y);
             i.vertices[2].RotateZ(RoXYZ.z);
         }
+        
         private void DrawingTriangles (Triangle Triangle, PaintEventArgs e)
         {
             Triangle.SortVerticies();
@@ -172,6 +189,7 @@ namespace _3D_Engine_00
                 { DrawTriangle(SplitTList[k], e); }
             }
         }
+        
         private void DrawTriangle(Triangle Triangle, PaintEventArgs e)
         {
             int TriState = 0;
