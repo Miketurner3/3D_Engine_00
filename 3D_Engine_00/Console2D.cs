@@ -30,9 +30,9 @@ namespace _3D_Engine_00
         float FOV = 90.0f;
         float AspectRatio = (float)ScreenWidth / ScreenHeight;
         float Far = 1000.0f;
-        float Near = 1.0f;
+        float Near = 3.0f;
 
-        Vector3 Camera ;
+        Vector3 Camera;
 
         Triangle triangle;
         List<Triangle> Triangles = new List<Triangle>();
@@ -104,10 +104,10 @@ namespace _3D_Engine_00
                     Triangle Triangle;
 
                     // - Perspective Projection -
-                    //Triangle = Projection(i, FOV, AspectRatio, Near, Far);
+                    Triangle = Projection(i, FOV, AspectRatio, Near, Far);
 
                     // - Scaling -
-                    Triangle = Scaling(i);
+                    Triangle = Scaling(Triangle);
 
                     // - lighting -
                     ////Lighting();
@@ -151,10 +151,7 @@ namespace _3D_Engine_00
             {
                 return false;
             }
-            
-            //normal.x * (Triangle.vertices[0].vector.x - Camera.x) +
-            //    normal.y * (Triangle.vertices[0].vector.y - Camera.y) +
-            //    normal.z * (Triangle.vertices[0].vector.z - Camera.z) < 0.0f
+
         }
       
         private Triangle Scaling(Triangle i)
