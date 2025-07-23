@@ -70,8 +70,8 @@ namespace _3D_Engine_00
             double y = vector.y * FOVRAD;
             double z = 1 / (vector.z * Far / (Far - Near) - (Far * Near) / (Far - Near));
 
-            x /= z;
-            y /= z;
+            x /= z * 0.7;
+            y /= z * 0.7;
 
             return new Vertex(x,y,vector.z);
         }

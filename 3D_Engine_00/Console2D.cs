@@ -110,7 +110,7 @@ namespace _3D_Engine_00
                     Triangle = Scaling(Triangle);
 
                     // - lighting -
-                    ////Lighting();
+                    Triangle = Triangle.Lighting();
 
                     // - Draw Triangle - 
                     DrawingTriangles(Triangle, e);
