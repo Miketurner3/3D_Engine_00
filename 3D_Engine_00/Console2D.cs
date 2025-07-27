@@ -15,6 +15,7 @@ using System.Reflection;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace _3D_Engine_00
 {
@@ -66,20 +67,20 @@ namespace _3D_Engine_00
             Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 0), new Vertex(0, 1, 0), new Vertex(1, 1, 0), Color.White));
             Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 0), new Vertex(1, 1, 0), new Vertex(1, 0, 0), Color.White));
 
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 0), new Vertex(1, 1, 0), new Vertex(1, 1, 1), Color.Yellow));
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 0), new Vertex(1, 1, 1), new Vertex(1, 0, 1), Color.Yellow));
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 0), new Vertex(1, 1, 0), new Vertex(1, 1, 1), Color.White));
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 0), new Vertex(1, 1, 1), new Vertex(1, 0, 1), Color.White));
 
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(1, 1, 1), new Vertex(0, 1, 1), Color.Purple));
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 1, 1), new Vertex(0, 0, 1), Color.Purple));
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(1, 1, 1), new Vertex(0, 1, 1), Color.White));
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 1, 1), new Vertex(0, 0, 1), Color.White));
 
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(0, 1, 1), new Vertex(0, 1, 0), Color.Green));
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(0, 1, 0), new Vertex(0, 0, 0), Color.Green));
+            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(0, 1, 1), new Vertex(0, 1, 0), Color.White));
+            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(0, 1, 0), new Vertex(0, 0, 0), Color.White));
 
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 0), new Vertex(0, 1, 1), new Vertex(1, 1, 1), Color.Blue));
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 0), new Vertex(1, 1, 1), new Vertex(1, 1, 0), Color.Blue));
+            Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 0), new Vertex(0, 1, 1), new Vertex(1, 1, 1), Color.White));
+            Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 0), new Vertex(1, 1, 1), new Vertex(1, 1, 0), Color.White));
 
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 1), new Vertex(0, 0, 0), Color.Red));
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 0), new Vertex(1, 0, 0), Color.Red));
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 1), new Vertex(0, 0, 0), Color.White));
+            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 0), new Vertex(1, 0, 0), Color.White));
         }
         
         private void SetBuffer()
@@ -103,24 +104,45 @@ namespace _3D_Engine_00
                 {
                     Triangle Triangle;
 
+                    // - lighting -
+                    Triangle = Lighting(i);
+
                     // - Perspective Projection -
                     Triangle = Projection(i, FOV, AspectRatio, Near, Far);
 
                     // - Scaling -
                     Triangle = Scaling(Triangle);
 
-                    // - lighting -
-                    Triangle = Triangle.Lighting();
-
                     // - Draw Triangle - 
                     DrawingTriangles(Triangle, e);
                 }
             }
         }
-        
-        private bool BackfaceCulling(Triangle Triangle)
-        {
 
+        private Triangle Lighting(Triangle i)
+        {
+            Vector3 LightDirection = new Vector3(0, 0, 1);
+            Vector3 Normal = CalcNormal(i);
+            Color LitColor = i.color;
+
+            double Luminousity = (Normal.x * -LightDirection.x) + 
+                                 (Normal.y * -LightDirection.y) + 
+                                 (Normal.z * -LightDirection.z);
+            
+            if (Luminousity < 0) { Luminousity = 0;}
+            if (Luminousity > 1) { Luminousity = 1;}
+
+            int r = (int)(i.color.R * Luminousity);
+            int g = (int)(i.color.G * Luminousity);
+            int b = (int)(i.color.B * Luminousity);
+
+            i.color = Color.FromArgb(r, g, b);
+
+            return i;
+        }
+
+        private Vector3 CalcNormal(Triangle Triangle)
+        {
             Vector3 Line1;
             Line1.x = Triangle.vertices[0].vector.x - Triangle.vertices[1].vector.x;
             Line1.y = Triangle.vertices[0].vector.y - Triangle.vertices[1].vector.y;
@@ -142,7 +164,14 @@ namespace _3D_Engine_00
             normal.x /= length;
             normal.y /= length;
             normal.z /= length;
- 
+
+            return normal;
+        }
+
+        private bool BackfaceCulling(Triangle Triangle)
+        {
+            Vector3 normal = (CalcNormal(Triangle));
+
             if (normal.z < 0)
             {
                 return true;

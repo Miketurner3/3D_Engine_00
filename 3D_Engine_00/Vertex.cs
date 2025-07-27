@@ -64,7 +64,7 @@ namespace _3D_Engine_00
         
         public Vertex ProjectionMatrix(float FOV, float AspectRatio, float Near , float Far)
         {
-            double FOVRAD = (FOV * 1.0)  / (180 * Math.PI);
+            double FOVRAD = (FOV * 0.5)  / (180 * Math.PI);
 
             double x = vector.x * (AspectRatio * FOVRAD);
             double y = vector.y * FOVRAD;
