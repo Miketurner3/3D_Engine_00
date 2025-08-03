@@ -16,6 +16,7 @@ using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace _3D_Engine_00
 {
@@ -102,13 +103,13 @@ namespace _3D_Engine_00
                 // - backface culling -
                 if (BackfaceCulling(i))
                 {
-                    Triangle Triangle;
+                    Triangle Triangle = i;
 
                     // - lighting -
-                    Triangle = Lighting(i);
+                    Triangle.color = Lighting(Triangle);
 
                     // - Perspective Projection -
-                    Triangle = Projection(i, FOV, AspectRatio, Near, Far);
+                    Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
 
                     // - Scaling -
                     Triangle = Scaling(Triangle);
@@ -119,26 +120,30 @@ namespace _3D_Engine_00
             }
         }
 
-        private Triangle Lighting(Triangle i)
+        private Color Lighting(Triangle Triangle)
         {
-            Vector3 LightDirection = new Vector3(0, 0, 1);
-            Vector3 Normal = CalcNormal(i);
-            Color LitColor = i.color;
+            Vector3 lightDirection = new Vector3(0, 0, -1);
+            Vector3 normal = CalcNormal(Triangle);
 
-            double Luminousity = (Normal.x * -LightDirection.x) + 
-                                 (Normal.y * -LightDirection.y) + 
-                                 (Normal.z * -LightDirection.z);
-            
-            if (Luminousity < 0) { Luminousity = 0;}
-            if (Luminousity > 1) { Luminousity = 1;}
+            // nornalise light
+            double lightMag = Math.Sqrt(lightDirection.x * lightDirection.x + lightDirection.y * lightDirection.y + lightDirection.z * lightDirection.z);
+            lightDirection.x /= lightMag; lightDirection.y /= lightMag; lightDirection.z /= lightMag;
 
-            int r = (int)(i.color.R * Luminousity);
-            int g = (int)(i.color.G * Luminousity);
-            int b = (int)(i.color.B * Luminousity);
+            // dot product ((-90)-1 To (90)1)
+            double dot = normal.x * lightDirection.x + normal.y * lightDirection.y + normal.z * lightDirection.z;
 
-            i.color = Color.FromArgb(r, g, b);
+            double angleRadians = Math.Acos(dot);
+            double angleDegrees = angleRadians * 180 / Math.PI;
 
-            return i;
+            double brightness = 1 - (angleDegrees / 90.0);
+            if (brightness < 0) brightness = 0;
+
+            int r = (int)(Triangle.color.R * brightness);
+            int g = (int)(Triangle.color.G * brightness);
+            int b = (int)(Triangle.color.B * brightness);
+
+            Color col = Color.FromArgb(r, g, b);
+            return col;
         }
 
         private Vector3 CalcNormal(Triangle Triangle)
