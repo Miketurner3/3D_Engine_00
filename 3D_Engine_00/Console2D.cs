@@ -103,7 +103,10 @@ namespace _3D_Engine_00
                 // - backface culling -
                 if (BackfaceCulling(i))
                 {
-                    Triangle Triangle = i;
+                    Triangle Triangle = new Triangle(new Vertex(i.vertices[0].vector.x, i.vertices[0].vector.y, i.vertices[0].vector.z), 
+                        new Vertex(i.vertices[1].vector.x, i.vertices[1].vector.y, i.vertices[1].vector.z), 
+                        new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z), i.color);
+
 
                     // - lighting -
                     Triangle.color = Lighting(Triangle);
