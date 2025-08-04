@@ -64,14 +64,15 @@ namespace _3D_Engine_00
         
         public Vertex ProjectionMatrix(float FOV, float AspectRatio, float Near , float Far)
         {
-            double FOVRAD = Math.Tan(FOV / (180 * Math.PI));
+            double FOVRAD = 1 / Math.Tan((FOV / 2) * (Math.PI / 180));
 
-            double x = vector.x * (AspectRatio * FOVRAD);
+            double x = vector.x * (FOVRAD / AspectRatio);
             double y = vector.y * FOVRAD;
-            double z = 1 / (vector.z * Far / (Far - Near) - (Far * Near) / (Far - Near));
+            double z = (vector.z * (Far + Near / Near - Far) + (2 * Far * Near) / (Near - Far)) / -vector.z;
 
-            x /= z;
-            y /= z;
+
+            x /= vector.z;
+            y /= vector.z;
 
             return new Vertex(x,y,vector.z);
         }
@@ -87,6 +88,7 @@ namespace _3D_Engine_00
 
             x = x * W/2;
             y = y * H/2;
+            z = z * 100;
 
             return new Vertex(x,y,z);
         }

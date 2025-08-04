@@ -32,7 +32,7 @@ namespace _3D_Engine_00
         float FOV = 90.0f;
         float AspectRatio = (float)ScreenWidth / ScreenHeight;
         float Far = 1000.0f;
-        float Near = 3.0f;
+        float Near = 1.0f;
 
         Triangle triangle;
         List<Triangle> Triangles = new List<Triangle>();
@@ -54,7 +54,7 @@ namespace _3D_Engine_00
             this.Height = ScreenHeight;
             this.DoubleBuffered = true;
             timer1.Enabled = true;
-            timer1.Interval = 1000;
+            timer1.Interval = 100;
 
             AddTriangleVerticies(ScreenWidth/2, ScreenHeight/2);
         }
@@ -116,7 +116,7 @@ namespace _3D_Engine_00
                     Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
 
                     // - Scaling -
-                    Triangle = Scaling(Triangle);
+                    //Triangle = Scaling(Triangle);
 
                     // - Draw Triangle - 
                     DrawingTriangles(Triangle, e);
@@ -126,9 +126,9 @@ namespace _3D_Engine_00
 
         private Triangle OffSet(Triangle triangle)
         {
-            triangle.vertices[0].vector.z += 1;
-            triangle.vertices[1].vector.z += 1;
-            triangle.vertices[2].vector.z += 1;
+            triangle.vertices[0].vector.z += 3;
+            triangle.vertices[1].vector.z += 3;
+            triangle.vertices[2].vector.z += 3;
 
             return triangle;
         }
