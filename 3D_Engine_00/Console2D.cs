@@ -27,14 +27,12 @@ namespace _3D_Engine_00
 
         public static int ScreenWidth = 600;
         public static int ScreenHeight = 600;
-        public float[,] Z_Buffer = new float[ScreenWidth, ScreenHeight];
+        public double[,] Z_Buffer = new double[ScreenWidth, ScreenHeight];
 
         float FOV = 90.0f;
         float AspectRatio = (float)ScreenWidth / ScreenHeight;
         float Far = 1000.0f;
         float Near = 3.0f;
-
-        Vector3 Camera;
 
         Triangle triangle;
         List<Triangle> Triangles = new List<Triangle>();
@@ -56,7 +54,7 @@ namespace _3D_Engine_00
             this.Height = ScreenHeight;
             this.DoubleBuffered = true;
             timer1.Enabled = true;
-            timer1.Interval = 100;
+            timer1.Interval = 1000;
 
             AddTriangleVerticies(ScreenWidth/2, ScreenHeight/2);
         }
@@ -88,7 +86,7 @@ namespace _3D_Engine_00
         {
             for (int y = 0; y < ScreenHeight; y++)
                 for (int x = 0; x < ScreenWidth; x++)
-                    Z_Buffer[x, y] = float.MaxValue;
+                    Z_Buffer[x, y] = double.MaxValue;
         }
         
         private void Console_2D_Paint(object sender, PaintEventArgs e)
@@ -111,6 +109,9 @@ namespace _3D_Engine_00
                     // - lighting -
                     Triangle.color = Lighting(Triangle);
 
+                    // - OffSet -
+                    Triangle = OffSet(Triangle);
+
                     // - Perspective Projection -
                     Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
 
@@ -121,6 +122,15 @@ namespace _3D_Engine_00
                     DrawingTriangles(Triangle, e);
                 }
             }
+        }
+
+        private Triangle OffSet(Triangle triangle)
+        {
+            triangle.vertices[0].vector.z += 1;
+            triangle.vertices[1].vector.z += 1;
+            triangle.vertices[2].vector.z += 1;
+
+            return triangle;
         }
 
         private Color Lighting(Triangle Triangle)

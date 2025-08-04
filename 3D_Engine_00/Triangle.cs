@@ -139,7 +139,7 @@ namespace _3D_Engine_00
             }
         }
         
-        public float[,] DrawZValuesInEachPixelForLine(Vector3[] EdgePixles, float[,] Z_Buffer, Graphics e, int W, int H)
+        public double[,] DrawZValuesInEachPixelForLine(Vector3[] EdgePixles, double[,] Z_Buffer, Graphics e, int W, int H)
         {
 
             int x1 = Convert.ToInt32(EdgePixles[0].x);
@@ -167,13 +167,17 @@ namespace _3D_Engine_00
             }
 
             int Y_Level = y1;
-            float ZValue =  z1;
+            double ZValue =  z1;
+
+            DrawPixelEdge(x1, y1 , e);
+            DrawPixelEdge(x2, y1 , e);
+
 
             for (int X_Level = x1; X_Level <= x2; X_Level++)
             {
                 if (x1 != x2) 
                 { 
-                    ZValue = z1 + ((float)(z2 - z1) / (x2 - x1)) * (X_Level - x1);
+                    ZValue = z1 + (Convert.ToSingle(z2 - z1) / (x2 - x1)) * (X_Level - x1);
                 }
 
                 if (X_Level >=  W || X_Level < 0 || Y_Level >=  H || Y_Level < 0) 
@@ -195,6 +199,12 @@ namespace _3D_Engine_00
         {
             Brush brush = new SolidBrush(color);
             e.FillEllipse(brush, X, Y, 2, 2);   
+        }
+
+        public void DrawPixelEdge(int X, int Y, Graphics e)
+        {
+            Brush brush = new SolidBrush(Color.Brown);
+            e.FillEllipse(brush, X, Y, 3, 3);
         }
     }
 }
