@@ -116,7 +116,7 @@ namespace _3D_Engine_00
                     Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
 
                     // - Scaling -
-                    //Triangle = Scaling(Triangle);
+                    Triangle = Scaling(Triangle);
 
                     // - Draw Triangle - 
                     DrawingTriangles(Triangle, e);
