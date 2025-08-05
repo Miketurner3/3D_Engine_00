@@ -56,10 +56,11 @@ namespace _3D_Engine_00
             timer1.Enabled = true;
             timer1.Interval = 100;
 
-            AddTriangleVerticies(ScreenWidth/2, ScreenHeight/2);
+            ReadOBJFile();
+            AddTriangleVerticies();
         }
         
-        private void AddTriangleVerticies(int CW, int CH)
+        private void AddTriangleVerticies()
         {
             // CUBE --- 6 SIDES : 12 TRIANGLES : 36 VERTICIES --- CUBE
 
@@ -80,6 +81,11 @@ namespace _3D_Engine_00
 
             Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 1), new Vertex(0, 0, 0), Color.White));
             Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 0), new Vertex(1, 0, 0), Color.White));
+        }
+
+        private void ReadOBJFile()
+        {
+
         }
         
         private void SetBuffer()
@@ -126,9 +132,10 @@ namespace _3D_Engine_00
 
         private Triangle OffSet(Triangle triangle)
         {
-            triangle.vertices[0].vector.z += 3;
-            triangle.vertices[1].vector.z += 3;
-            triangle.vertices[2].vector.z += 3;
+            int Offset = 4;
+            triangle.vertices[0].vector.z += Offset;
+            triangle.vertices[1].vector.z += Offset;
+            triangle.vertices[2].vector.z += Offset;
 
             return triangle;
         }

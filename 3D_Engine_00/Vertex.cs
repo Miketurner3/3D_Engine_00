@@ -70,9 +70,11 @@ namespace _3D_Engine_00
             double y = vector.y * FOVRAD;
             double z = (vector.z * (Far + Near / Near - Far) + (2 * Far * Near) / (Near - Far)) / -vector.z;
 
-
-            x /= vector.z;
-            y /= vector.z;
+            if (!(z == 0 || double.IsInfinity(z)))
+            {
+                x /= vector.z;
+                y /= vector.z;
+            }
 
             return new Vertex(x,y,vector.z);
         }
