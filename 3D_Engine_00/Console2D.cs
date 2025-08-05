@@ -107,10 +107,12 @@ namespace _3D_Engine_00
                 // - backface culling -
                 if (BackfaceCulling(i))
                 {
-                    Triangle Triangle = new Triangle(new Vertex(i.vertices[0].vector.x, i.vertices[0].vector.y, i.vertices[0].vector.z), 
+                    // - Copy To New Triangle -
+                    Triangle Triangle = new Triangle(
+                        new Vertex(i.vertices[0].vector.x, i.vertices[0].vector.y, i.vertices[0].vector.z), 
                         new Vertex(i.vertices[1].vector.x, i.vertices[1].vector.y, i.vertices[1].vector.z), 
-                        new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z), i.color);
-
+                        new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z), 
+                        i.color);
 
                     // - lighting -
                     Triangle.color = Lighting(Triangle);
@@ -118,14 +120,14 @@ namespace _3D_Engine_00
                     // - OffSet -
                     Triangle = OffSet(Triangle);
 
-                    // - Perspective Projection -
+                    // - Perspective -
                     Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
 
-                    // - Scaling -
+                    // - Scale -
                     Triangle = Scaling(Triangle);
 
                     // - Draw Triangle - 
-                    DrawingTriangles(Triangle, e);
+                    ZBuffering(Triangle, e);
                 }
             }
         }
@@ -247,7 +249,7 @@ namespace _3D_Engine_00
             i.vertices[2].RotateZ(RoXYZ.z);
         }
         
-        private void DrawingTriangles (Triangle Triangle, PaintEventArgs e)
+        private void ZBuffering(Triangle Triangle, PaintEventArgs e)
         {
             Triangle.SortVerticies();
             Triangle[] SplitTList = Triangle.SplitTriangle();
