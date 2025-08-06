@@ -88,8 +88,8 @@ namespace _3D_Engine_00
             x = x + 1;
             y = y + 1;
 
-            x = x * W/2;
-            y = y * H/2;
+            x = x * H/2;
+            y = y * W/2;
             z = z * 100;
 
             return new Vertex(x,y,z);

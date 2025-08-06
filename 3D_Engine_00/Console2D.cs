@@ -126,6 +126,9 @@ namespace _3D_Engine_00
                     // - Scale -
                     Triangle = Scaling(Triangle);
 
+                    // - Clipping - 
+                    ////Triangle = Clipping(Triangle);
+                
                     // - Draw Triangle - 
                     ZBuffering(Triangle, e);
                 }
