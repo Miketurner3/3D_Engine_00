@@ -17,13 +17,14 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace _3D_Engine_00
 {
 
     public partial class Console_2D : Form
     {
-        Vector3 RoXYZ = new Vector3(3, 5, 0);
+        Vector3 RoXYZ = new Vector3(2, 4, 0);
 
         public static int ScreenWidth = 600;
         public static int ScreenHeight = 600;
@@ -56,38 +57,66 @@ namespace _3D_Engine_00
             timer1.Enabled = true;
             timer1.Interval = 100;
 
-            //ReadOBJFile();
-            AddTriangleVerticies();
+            ReadOBJFile();
         }
-        
-        private void AddTriangleVerticies()
+
+        private void ReadOBJFile()
         {
-            // CUBE --- 6 SIDES : 12 TRIANGLES : 36 VERTICIES --- CUBE
+            List<Vertex> Verticies = new List<Vertex>();
+            double[] V = new double[3];
+            string Line;
 
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 0), new Vertex(0, 1, 0), new Vertex(1, 1, 0), Color.White));
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 0), new Vertex(1, 1, 0), new Vertex(1, 0, 0), Color.White));
+            // Read File
+            using (StreamReader File = new StreamReader("Object.obj"))
+            {
+                while ((Line = File.ReadLine()) != null)
+                {
+                    if (Line[0] == 'v')
+                    {
+                        ObjStrToInt(Line, V);
+                        Verticies.Add(new Vertex(V[0], V[1], V[2]));
+                        
+                    }
+                    else if (Line[0] == 'f')
+                    {
+                        ObjStrToInt(Line, V);
 
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 0), new Vertex(1, 1, 0), new Vertex(1, 1, 1), Color.White));
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 0), new Vertex(1, 1, 1), new Vertex(1, 0, 1), Color.White));
-
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(1, 1, 1), new Vertex(0, 1, 1), Color.White));
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 1, 1), new Vertex(0, 0, 1), Color.White));
-
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(0, 1, 1), new Vertex(0, 1, 0), Color.White));
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 0, 1), new Vertex(0, 1, 0), new Vertex(0, 0, 0), Color.White));
-
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 0), new Vertex(0, 1, 1), new Vertex(1, 1, 1), Color.White));
-            Triangles.Add(triangle = new Triangle(new Vertex(0, 1, 0), new Vertex(1, 1, 1), new Vertex(1, 1, 0), Color.White));
-
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 1), new Vertex(0, 0, 0), Color.White));
-            Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 0), new Vertex(1, 0, 0), Color.White));
+                        Triangles.Add(new Triangle(
+                            new Vertex(Verticies[(int)(V[0] - 1)].vector.x, Verticies[(int)(V[0] - 1)].vector.y, Verticies[(int)(V[0] - 1)].vector.z),
+                            new Vertex(Verticies[(int)(V[1] - 1)].vector.x, Verticies[(int)(V[1] - 1)].vector.y, Verticies[(int)(V[1] - 1)].vector.z),
+                            new Vertex(Verticies[(int)(V[2] - 1)].vector.x, Verticies[(int)(V[2] - 1)].vector.y, Verticies[(int)(V[2] - 1)].vector.z),
+                            Color.White));
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
         }
 
-        //private void ReadOBJFile()
-        //{
+        private double[] ObjStrToInt(string Line, double[] V)
+        {
+            int j = 0;
+            string VStr = "";
+            Line = Line.Remove(0, 2);
 
-        //}
-        
+            for (int i = 0; i <= 2; i++)
+            {
+                while (Line[j] != ' ')
+                {
+                    VStr += Line[j];
+                    j++;
+                    if (j == Line.Length) { break; }
+                }
+                j++;
+                V[i] = Convert.ToDouble(VStr);
+                VStr = "";
+            }
+
+            return V;
+        }
+
         private void SetBuffer()
         {
             for (int y = 0; y < ScreenHeight; y++)
@@ -104,13 +133,12 @@ namespace _3D_Engine_00
                 // - Transform -
                 RotateXYZ(i);
 
-                // - Camera -
-                ////
+                //Camera();
 
                 // - backface culling -
                 if (BackfaceCulling(i))
                 {
-                    // - Copy To New Triangle -
+                    // - Copy Triangle -
                     Triangle Triangle = new Triangle(
                         new Vertex(i.vertices[0].vector.x, i.vertices[0].vector.y, i.vertices[0].vector.z), 
                         new Vertex(i.vertices[1].vector.x, i.vertices[1].vector.y, i.vertices[1].vector.z), 
@@ -140,7 +168,7 @@ namespace _3D_Engine_00
 
         private Triangle OffSet(Triangle triangle)
         {
-            int Offset = 4;
+            int Offset = 3;
             triangle.vertices[0].vector.z += Offset;
             triangle.vertices[1].vector.z += Offset;
             triangle.vertices[2].vector.z += Offset;

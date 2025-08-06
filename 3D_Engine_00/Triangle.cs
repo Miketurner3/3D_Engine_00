@@ -169,8 +169,8 @@ namespace _3D_Engine_00
             int Y_Level = y1;
             double ZValue =  z1;
 
-            //DrawPixelEdge(x1, y1 , e);
-            //DrawPixelEdge(x2, y1 , e);
+            //DrawPixelEdge(x1, y1, e);
+            //DrawPixelEdge(x2, y1, e);
 
 
             for (int X_Level = x1; X_Level <= x2; X_Level++)
