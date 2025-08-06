@@ -56,7 +56,7 @@ namespace _3D_Engine_00
             timer1.Enabled = true;
             timer1.Interval = 100;
 
-            ReadOBJFile();
+            //ReadOBJFile();
             AddTriangleVerticies();
         }
         
@@ -83,10 +83,10 @@ namespace _3D_Engine_00
             Triangles.Add(triangle = new Triangle(new Vertex(1, 0, 1), new Vertex(0, 0, 0), new Vertex(1, 0, 0), Color.White));
         }
 
-        private void ReadOBJFile()
-        {
+        //private void ReadOBJFile()
+        //{
 
-        }
+        //}
         
         private void SetBuffer()
         {
@@ -104,6 +104,9 @@ namespace _3D_Engine_00
                 // - Transform -
                 RotateXYZ(i);
 
+                // - Camera -
+                ////
+
                 // - backface culling -
                 if (BackfaceCulling(i))
                 {
@@ -114,11 +117,14 @@ namespace _3D_Engine_00
                         new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z), 
                         i.color);
 
-                    // - lighting -
-                    Triangle.color = Lighting(Triangle);
-
                     // - OffSet -
                     Triangle = OffSet(Triangle);
+
+                    // - Clipping - 
+                    ////Triangle = Clipping(Triangle);
+
+                    // - lighting -
+                    Triangle.color = Lighting(Triangle);
 
                     // - Perspective -
                     Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
@@ -126,9 +132,6 @@ namespace _3D_Engine_00
                     // - Scale -
                     Triangle = Scaling(Triangle);
 
-                    // - Clipping - 
-                    ////Triangle = Clipping(Triangle);
-                
                     // - Draw Triangle - 
                     ZBuffering(Triangle, e);
                 }
