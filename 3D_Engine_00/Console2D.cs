@@ -24,7 +24,7 @@ namespace _3D_Engine_00
 
     public partial class Console_2D : Form
     {
-        Vector3 RoXYZ = new Vector3(2, 4, 0);
+        Vector3 RoXYZ = new Vector3(4, 7, 0);
 
         public static int ScreenWidth = 600;
         public static int ScreenHeight = 600;
