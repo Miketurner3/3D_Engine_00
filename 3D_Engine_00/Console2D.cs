@@ -168,7 +168,7 @@ namespace _3D_Engine_00
 
         private Triangle OffSet(Triangle triangle)
         {
-            int Offset = 3;
+            int Offset = 4;
             triangle.vertices[0].vector.z += Offset;
             triangle.vertices[1].vector.z += Offset;
             triangle.vertices[2].vector.z += Offset;
