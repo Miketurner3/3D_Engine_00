@@ -201,6 +201,29 @@ namespace _3D_Engine_00
             e.FillEllipse(brush, X, Y, 2, 2);   
         }
 
+        internal List<Triangle> ZNearClipping(double Near)
+        {
+            List<Triangle> ZNearList = new List<Triangle>();
+            int inside = 0;
+            int outside = 0;
+
+            for (int i = 0; i <= 2; i++)
+            {
+                if (vertices[i].vector.z > Near)
+                {
+                    inside++;
+                }
+                else if (vertices[i].vector.z <= Near)
+                {
+                    outside++;
+                }
+            }
+
+            //
+
+            return ZNearList;
+        }
+
         //public void DrawPixelEdge(int X, int Y, Graphics e)
         //{
         //    Brush brush = new SolidBrush(Color.Brown);

@@ -24,7 +24,7 @@ namespace _3D_Engine_00
 
     public partial class Console_2D : Form
     {
-        Vector3 RoXYZ = new Vector3(4, 7, 0);
+        Vector3 RoXYZ = new Vector3(6, 5, 0);
 
         public static int ScreenWidth = 600;
         public static int ScreenHeight = 600;
@@ -55,7 +55,7 @@ namespace _3D_Engine_00
             this.Height = ScreenHeight;
             this.DoubleBuffered = true;
             timer1.Enabled = true;
-            timer1.Interval = 100;
+            timer1.Interval = 50;
 
             ReadOBJFile();
         }
@@ -149,26 +149,46 @@ namespace _3D_Engine_00
                     Triangle = OffSet(Triangle);
 
                     // - Clipping - 
-                    ////Triangle = Clipping(Triangle);
+                    List<Triangle> ClippedList = Clipping(Triangle);
 
-                    // - lighting -
-                    Triangle.color = Lighting(Triangle);
+                    foreach (Triangle Tri in ClippedList)
+                    {
+                        Triangle = Tri;
 
-                    // - Perspective -
-                    Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
+                        // - lighting -
+                        Triangle.color = Lighting(Triangle);
 
-                    // - Scale -
-                    Triangle = Scaling(Triangle);
+                        // - Perspective -
+                        Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
 
-                    // - Draw Triangle - 
-                    ZBuffering(Triangle, e);
+                        // - Scale -
+                        Triangle = Scaling(Triangle);
+
+                        // - Draw Triangle - 
+                        ZBuffering(Triangle, e);
+                    }
                 }
             }
         }
 
+        private List<Triangle> Clipping(Triangle triangle)
+        {
+            List<Triangle> ClippedList = new List<Triangle>();
+            List<Triangle> ZNearList = new List<Triangle>();
+
+            ZNearList = triangle.ZNearClipping(Near);
+
+            foreach ( Triangle Tri in ZNearList)
+            {
+                ClippedList.AddRange(Tri.EdgeClipping()); 
+            }
+
+            return ClippedList;
+        }
+
         private Triangle OffSet(Triangle triangle)
         {
-            int Offset = 4;
+            int Offset = 3;
             triangle.vertices[0].vector.z += Offset;
             triangle.vertices[1].vector.z += Offset;
             triangle.vertices[2].vector.z += Offset;
