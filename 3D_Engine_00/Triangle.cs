@@ -203,25 +203,56 @@ namespace _3D_Engine_00
 
         internal List<Triangle> ZNearClipping(double Near)
         {
-            List<Triangle> ZNearList = new List<Triangle>();
-            int inside = 0;
-            int outside = 0;
+            List<Triangle> clippedTriangles = new List<Triangle>();
+            List<Vertex> newPoly = new List<Vertex>();
+            var verts = new (Vertex v, bool inside)[3];
+            double x = 0; double y = 0; double z = Near;
 
-            for (int i = 0; i <= 2; i++)
+            for (int i = 0; i < 3; i++)   {
+                verts[i] = (vertices[i], vertices[i].vector.z >= Near);
+            }
+
+            for (int i = 0; i < 3; i++)
             {
-                if (vertices[i].vector.z > Near)
+                var current = verts[i];
+                var next = verts[(i + 1) % 3];
+
+                if (current.inside)
                 {
-                    inside++;
+                    newPoly.Add(current.v);
                 }
-                else if (vertices[i].vector.z <= Near)
+
+                if (current.inside != next.inside)
                 {
-                    outside++;
+                    x = current.v.vector.x + (Near - current.v.vector.z) / (next.v.vector.z - current.v.vector.z) * (next.v.vector.x - current.v.vector.x);
+                    y = current.v.vector.y + (Near - current.v.vector.z) / (next.v.vector.z - current.v.vector.z) * (next.v.vector.y - current.v.vector.y);
+
+                    newPoly.Add(new Vertex(x,y,z));
                 }
             }
 
-            //
+            if (newPoly.Count < 3) 
+            {   
+                
+            }
+            else if (newPoly.Count == 3)
+            {
+                clippedTriangles.Add(new Triangle(newPoly[0], newPoly[1], newPoly[2], color));
+            }
+            else if (newPoly.Count == 4)
+            {
+                clippedTriangles.Add(new Triangle(newPoly[0], newPoly[1], newPoly[2], color));
+                clippedTriangles.Add(new Triangle(newPoly[0], newPoly[2], newPoly[3], color));
+            }
+            return clippedTriangles;
+        }
 
-            return ZNearList;
+        internal IEnumerable<Triangle> EdgeClipping(Triangle triangle)
+        {
+            List<Triangle> ClippedList = new List<Triangle>();
+
+            ClippedList.Add(triangle);
+            return ClippedList;
         }
 
         //public void DrawPixelEdge(int X, int Y, Graphics e)

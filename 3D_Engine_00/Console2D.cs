@@ -24,18 +24,18 @@ namespace _3D_Engine_00
 
     public partial class Console_2D : Form
     {
-        Vector3 RoXYZ = new Vector3(6, 5, 0);
+        Vector3 RoXYZ = new Vector3(3, 5, 0);
+        public Vector3 CameraXYZ = new Vector3(0,0,0);
 
-        public static int ScreenWidth = 600;
+        public static int ScreenWidth = 1000;
         public static int ScreenHeight = 600;
         public double[,] Z_Buffer = new double[ScreenWidth, ScreenHeight];
 
-        float FOV = 90.0f;
-        float AspectRatio = (float)ScreenWidth / ScreenHeight;
-        float Far = 1000.0f;
-        float Near = 1.0f;
+        double FOV = 90.0;
+        double AspectRatio = (float)ScreenWidth / ScreenHeight;
+        double Far = 1000.0;
+        double Near = 1;
 
-        Triangle triangle;
         List<Triangle> Triangles = new List<Triangle>();
 
         public Console_2D()
@@ -55,7 +55,7 @@ namespace _3D_Engine_00
             this.Height = ScreenHeight;
             this.DoubleBuffered = true;
             timer1.Enabled = true;
-            timer1.Interval = 50;
+            timer1.Interval = 1000;
 
             ReadOBJFile();
         }
@@ -130,20 +130,19 @@ namespace _3D_Engine_00
 
             foreach (Triangle i in Triangles)
             {
-                // - Transform -
+                // - Transform - TEMP
                 RotateXYZ(i);
 
-                //Camera();
+                // - Copy Triangle -
+                Triangle Triangle = new Triangle(
+                    new Vertex(i.vertices[0].vector.x, i.vertices[0].vector.y, i.vertices[0].vector.z),
+                    new Vertex(i.vertices[1].vector.x, i.vertices[1].vector.y, i.vertices[1].vector.z),
+                    new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z),
+                    i.color);
 
                 // - backface culling -
-                if (BackfaceCulling(i))
+                if (BackfaceCulling(Triangle))
                 {
-                    // - Copy Triangle -
-                    Triangle Triangle = new Triangle(
-                        new Vertex(i.vertices[0].vector.x, i.vertices[0].vector.y, i.vertices[0].vector.z), 
-                        new Vertex(i.vertices[1].vector.x, i.vertices[1].vector.y, i.vertices[1].vector.z), 
-                        new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z), 
-                        i.color);
 
                     // - OffSet -
                     Triangle = OffSet(Triangle);
@@ -180,7 +179,7 @@ namespace _3D_Engine_00
 
             foreach ( Triangle Tri in ZNearList)
             {
-                ClippedList.AddRange(Tri.EdgeClipping()); 
+                ClippedList.AddRange(Tri.EdgeClipping(Tri)); 
             }
 
             return ClippedList;
@@ -188,7 +187,7 @@ namespace _3D_Engine_00
 
         private Triangle OffSet(Triangle triangle)
         {
-            int Offset = 3;
+            double Offset = 2;
             triangle.vertices[0].vector.z += Offset;
             triangle.vertices[1].vector.z += Offset;
             triangle.vertices[2].vector.z += Offset;
@@ -276,7 +275,7 @@ namespace _3D_Engine_00
             return TriScaled;
         }
         
-        private Triangle Projection(Triangle Triangle, float FOV, float AspectRatio, float Near, float Far)
+        private Triangle Projection(Triangle Triangle, double FOV, double AspectRatio, double Near, double Far)
         {
             Triangle TriProjected = new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0), Color.White);
 
