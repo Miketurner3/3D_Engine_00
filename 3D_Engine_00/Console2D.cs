@@ -34,7 +34,7 @@ namespace _3D_Engine_00
         double FOV = 90.0;
         double AspectRatio = (float)ScreenWidth / ScreenHeight;
         double Far = 1000.0;
-        double Near = 1;
+        double Near = 0.5;
 
         List<Triangle> Triangles = new List<Triangle>();
 
@@ -55,7 +55,7 @@ namespace _3D_Engine_00
             this.Height = ScreenHeight;
             this.DoubleBuffered = true;
             timer1.Enabled = true;
-            timer1.Interval = 1000;
+            timer1.Interval = 100;
 
             ReadOBJFile();
         }
@@ -140,6 +140,9 @@ namespace _3D_Engine_00
                     new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z),
                     i.color);
 
+                // - Camera - 
+                Triangle = Camera(Triangle);
+
                 // - backface culling -
                 if (BackfaceCulling(Triangle))
                 {
@@ -168,6 +171,23 @@ namespace _3D_Engine_00
                     }
                 }
             }
+        }
+
+        private Triangle Camera(Triangle triangle)
+        {
+            triangle.vertices[0].vector.x += CameraXYZ.x;
+            triangle.vertices[0].vector.y += CameraXYZ.y;
+            triangle.vertices[0].vector.z += CameraXYZ.z;
+
+            triangle.vertices[1].vector.x += CameraXYZ.x;
+            triangle.vertices[1].vector.y += CameraXYZ.y;
+            triangle.vertices[1].vector.z += CameraXYZ.z;
+
+            triangle.vertices[2].vector.x += CameraXYZ.x;
+            triangle.vertices[2].vector.y += CameraXYZ.y;
+            triangle.vertices[2].vector.z += CameraXYZ.z;
+
+            return triangle;
         }
 
         private List<Triangle> Clipping(Triangle triangle)
@@ -331,6 +351,26 @@ namespace _3D_Engine_00
             {
                 Vector3[] EdgePixlesForLine = Triangle.FindEdgePixles(Y_Level, TriState);
                 Z_Buffer = Triangle.DrawZValuesInEachPixelForLine(EdgePixlesForLine, Z_Buffer, e.Graphics, ScreenWidth, ScreenHeight);
+            }
+        }
+
+        private void Console_2D_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.W)
+            {
+                CameraXYZ.z = CameraXYZ.z - 0.1;
+            }
+            if (e.KeyCode == Keys.S)
+            {
+                CameraXYZ.z = CameraXYZ.z + 0.1;
+            }
+            if (e.KeyCode == Keys.A)
+            {
+                CameraXYZ.x = CameraXYZ.x + 0.1;
+            }
+            if (e.KeyCode == Keys.D)
+            {
+                CameraXYZ.x = CameraXYZ.x - 0.1;
             }
         }
     }
