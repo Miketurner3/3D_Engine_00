@@ -28,8 +28,8 @@ namespace _3D_Engine_00
             Double R = A * Math.PI / 180;
 
             vector.x = (x * 1) + (y * 0) + (z * 0);
-            vector.y = (x * 0) + (y * Math.Cos(R)) + (z * Math.Sin(R));
-            vector.z = (x * 0) + (y * -Math.Sin(R)) + (z * Math.Cos(R));
+            vector.y = (x * 0) + (y * Math.Cos(R)) + (z * -Math.Sin(R));
+            vector.z = (x * 0) + (y * Math.Sin(R)) + (z * Math.Cos(R));
 
             
         }
@@ -57,8 +57,8 @@ namespace _3D_Engine_00
 
             Double R = A * Math.PI / 180;
 
-            vector.x = (x * Math.Cos(R)) + (y * Math.Sin(R)) + (z * 0);
-            vector.y = (x * -Math.Sin(R)) + (y * Math.Cos(R)) + (z * 0);
+            vector.x = (x * Math.Cos(R)) + (y * -Math.Sin(R)) + (z * 0);
+            vector.y = (x * Math.Sin(R)) + (y * Math.Cos(R)) + (z * 0);
             vector.z = (x * 0) + (y * 0) + (z * 1);
         }
         

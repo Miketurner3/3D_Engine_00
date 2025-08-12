@@ -26,13 +26,13 @@ namespace _3D_Engine_00
     {
         Vector3 RoXYZ = new Vector3(4, 7, 0);
         public Vector3 CameraXYZ = new Vector3(0,0,5);
-        public Vector3 CameraRotation = new Vector3(0,0,-1);
+        public Vector3 lightDirection = new Vector3(0, 0, -1);
         public double yaw = 0.0;
         public double pitch = 0.0;
         public double roll = 0.0;
 
 
-        public static int ScreenWidth = 1000;
+        public static int ScreenWidth = 600;
         public static int ScreenHeight = 600;
         public double[,] Z_Buffer = new double[ScreenWidth, ScreenHeight];
 
@@ -49,8 +49,6 @@ namespace _3D_Engine_00
             this.MouseWheel += Console_2D_MouseWheel;
         }
 
-
-
         private void timer1_Tick(object sender, EventArgs e)
         {
             Invalidate();
@@ -58,7 +56,7 @@ namespace _3D_Engine_00
         
         private void Console_Load(object sender, EventArgs e)
         {
-            this.BackColor = Color.Black;
+            this.BackColor = Color.Orange;
             this.Width = ScreenWidth;
             this.Height = ScreenHeight;
             this.DoubleBuffered = true;
@@ -93,7 +91,7 @@ namespace _3D_Engine_00
                             new Vertex(Verticies[(int)(V[0] - 1)].vector.x, Verticies[(int)(V[0] - 1)].vector.y, Verticies[(int)(V[0] - 1)].vector.z),
                             new Vertex(Verticies[(int)(V[1] - 1)].vector.x, Verticies[(int)(V[1] - 1)].vector.y, Verticies[(int)(V[1] - 1)].vector.z),
                             new Vertex(Verticies[(int)(V[2] - 1)].vector.x, Verticies[(int)(V[2] - 1)].vector.y, Verticies[(int)(V[2] - 1)].vector.z),
-                            Color.White));
+                            Color.DeepPink));
                     }
                     else
                     {
@@ -138,9 +136,6 @@ namespace _3D_Engine_00
 
             foreach (Triangle i in Triangles)
             {
-                // - Transform - TEMP
-                RotateXYZ(i);
-
                 // - Copy Triangle -
                 Triangle Triangle = new Triangle(
                     new Vertex(i.vertices[0].vector.x, i.vertices[0].vector.y, i.vertices[0].vector.z),
@@ -236,7 +231,6 @@ namespace _3D_Engine_00
         }
         private Color Lighting(Triangle Triangle)
         {
-            Vector3 lightDirection = new Vector3(0, 0, -1);
             Vector3 normal = CalcNormal(Triangle);
 
             // nornalise light
@@ -245,11 +239,12 @@ namespace _3D_Engine_00
 
             // dot product ((-90)-1 To (90)1)
             double dot = normal.x * lightDirection.x + normal.y * lightDirection.y + normal.z * lightDirection.z;
+            if (dot > 1) dot = 1;
 
             double angleRadians = Math.Acos(dot);
             double angleDegrees = angleRadians * 180 / Math.PI;
 
-            double brightness = 1 - (angleDegrees / 90.0);
+            double brightness = 1 - (angleDegrees / 130.0);
             if (brightness < 0) brightness = 0;
 
             int r = (int)(Triangle.color.R * brightness);
@@ -263,8 +258,11 @@ namespace _3D_Engine_00
         private bool BackfaceCulling(Triangle Triangle)
         {
             Vector3 normal = (CalcNormal(Triangle));
-            double BFAngle = (Math.Acos(normal.x * CameraRotation.x + normal.y * CameraRotation.y + normal.z * CameraRotation.z)) * 180 / Math.PI; ;
-            if (BFAngle < 100)
+            double BFAngle = (normal.x * (Triangle.vertices[1].vector.x - CameraXYZ.x) +
+                              normal.y * (Triangle.vertices[1].vector.y - CameraXYZ.y) +
+                              normal.z * (Triangle.vertices[1].vector.z - CameraXYZ.z)) * 
+                              (180/Math.PI);
+            if (BFAngle < 90)
             { 
                 return true;
             }
@@ -299,21 +297,6 @@ namespace _3D_Engine_00
             return TriProjected;
         }
         
-        private void RotateXYZ(Triangle i)
-        {
-            i.vertices[0].RotateX(RoXYZ.x);
-            i.vertices[0].RotateY(RoXYZ.y);
-            i.vertices[0].RotateZ(RoXYZ.z);
-
-            i.vertices[1].RotateX(RoXYZ.x);
-            i.vertices[1].RotateY(RoXYZ.y);
-            i.vertices[1].RotateZ(RoXYZ.z);
-
-            i.vertices[2].RotateX(RoXYZ.x);
-            i.vertices[2].RotateY(RoXYZ.y);
-            i.vertices[2].RotateZ(RoXYZ.z);
-        }
-        
         private void ZBuffering(Triangle Triangle, PaintEventArgs e)
         {
             Triangle.SortVerticies();
@@ -334,12 +317,12 @@ namespace _3D_Engine_00
             int minY = (int)Math.Ceiling(Triangle.vertices[0].vector.y);
             int maxY = (int)Math.Floor(Triangle.vertices[2].vector.y);
 
-            if (Math.Round(Triangle.vertices[0].vector.y) == Math.Round(Triangle.vertices[1].vector.y)) 
-            { 
-                TriState = 1; 
+            if (Math.Round(Triangle.vertices[0].vector.y) == Math.Round(Triangle.vertices[1].vector.y))
+            {
+                TriState = 1;
             }
 
-            for (int Y_Level = minY; Y_Level <= maxY + 0; Y_Level++)
+            for (int Y_Level = minY; Y_Level <= maxY ; Y_Level++)
             {
                 Vector3[] EdgePixlesForLine = Triangle.FindEdgePixles(Y_Level, TriState);
                 Z_Buffer = Triangle.DrawZValuesInEachPixelForLine(EdgePixlesForLine, Z_Buffer, e.Graphics, ScreenWidth, ScreenHeight);
@@ -348,31 +331,48 @@ namespace _3D_Engine_00
 
         private void Console_2D_KeyDown(object sender, KeyEventArgs e)
         {
+            double Lx = lightDirection.x; double Ly = lightDirection.y; double Lz = lightDirection.z;
+
             if (e.KeyCode == Keys.W)
             {
+                CameraXYZ.y += 0.1;
             }
             if (e.KeyCode == Keys.S)
             {
+                CameraXYZ.y -= 0.1;
             }
             if (e.KeyCode == Keys.A)
             {
+                CameraXYZ.x += 0.1;
             }
             if (e.KeyCode == Keys.D)
             {
+                CameraXYZ.x -= 0.1;
             }
             if (e.KeyCode == Keys.Q)
             {
                 yaw -= 2;
+
+                lightDirection.x = (Lx * Math.Cos(0.0349066)) + (Lz * Math.Sin(0.0349066));
+                lightDirection.y = (Ly * 1);
+                lightDirection.z = (Lx * -Math.Sin(0.0349066)) + (Lz * Math.Cos(0.0349066));
+
             }
             if (e.KeyCode == Keys.E)
             {
                 yaw += 2;
+
+                lightDirection.x = (Lx * Math.Cos(-0.0349066)) + (Lz * Math.Sin(-0.0349066));
+                lightDirection.y = (Ly * 1);
+                lightDirection.z = (Lx * -Math.Sin(-0.0349066)) + (Lz * Math.Cos(-0.0349066));
             }
             if (e.KeyCode == Keys.Up)
             {
+                CameraXYZ.z -= 0.1;
             }
             if (e.KeyCode == Keys.Down)
             {
+                CameraXYZ.z += 0.1;
             }
             if (e.KeyCode == Keys.Left)
             {
@@ -386,11 +386,11 @@ namespace _3D_Engine_00
         {
             if (e.Delta > 0)
             {
-                CameraXYZ.z -= 0.1;
+                CameraXYZ.z -= 0.2;
             }
             else if (e.Delta < 0)
             {
-                CameraXYZ.z += 0.1;
+                CameraXYZ.z += 0.2;
             }
         }
     }
