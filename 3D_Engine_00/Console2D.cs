@@ -25,8 +25,12 @@ namespace _3D_Engine_00
     public partial class Console_2D : Form
     {
         Vector3 RoXYZ = new Vector3(4, 7, 0);
-        public Vector3 CameraXYZ = new Vector3(0,0,0);
+        public Vector3 CameraXYZ = new Vector3(0,0,5);
         public Vector3 CameraRotation = new Vector3(0,0,-1);
+        public double yaw = 0.0;
+        public double pitch = 0.0;
+        public double roll = 0.0;
+
 
         public static int ScreenWidth = 1000;
         public static int ScreenHeight = 600;
@@ -150,10 +154,6 @@ namespace _3D_Engine_00
                 // - backface culling -
                 if (BackfaceCulling(Triangle))
                 {
-
-                    // - OffSet -
-                    Triangle = OffSet(Triangle);
-
                     // - Clipping - 
                     List<Triangle> ClippedList = Clipping(Triangle);
 
@@ -179,17 +179,16 @@ namespace _3D_Engine_00
 
         private Triangle Camera(Triangle triangle)
         {
-            triangle.vertices[0].vector.x += CameraXYZ.x;
-            triangle.vertices[0].vector.y += CameraXYZ.y;
-            triangle.vertices[0].vector.z += CameraXYZ.z;
+            for (int i = 0; i < 3; i++)
+            {
+                triangle.vertices[i].vector.x += CameraXYZ.x;
+                triangle.vertices[i].vector.y += CameraXYZ.y;
+                triangle.vertices[i].vector.z += CameraXYZ.z;
 
-            triangle.vertices[1].vector.x += CameraXYZ.x;
-            triangle.vertices[1].vector.y += CameraXYZ.y;
-            triangle.vertices[1].vector.z += CameraXYZ.z;
-
-            triangle.vertices[2].vector.x += CameraXYZ.x;
-            triangle.vertices[2].vector.y += CameraXYZ.y;
-            triangle.vertices[2].vector.z += CameraXYZ.z;
+                triangle.vertices[i].RotateX(-pitch);
+                triangle.vertices[i].RotateY(-yaw);
+                triangle.vertices[i].RotateZ(-roll);
+            }
 
             return triangle;
         }
@@ -207,16 +206,6 @@ namespace _3D_Engine_00
             }
 
             return ClippedList;
-        }
-
-        private Triangle OffSet(Triangle triangle)
-        {
-            double Offset = 5;
-            triangle.vertices[0].vector.z += Offset;
-            triangle.vertices[1].vector.z += Offset;
-            triangle.vertices[2].vector.z += Offset;
-
-            return triangle;
         }
 
         private Vector3 CalcNormal(Triangle Triangle)
@@ -275,7 +264,7 @@ namespace _3D_Engine_00
         {
             Vector3 normal = (CalcNormal(Triangle));
             double BFAngle = (Math.Acos(normal.x * CameraRotation.x + normal.y * CameraRotation.y + normal.z * CameraRotation.z)) * 180 / Math.PI; ;
-            if (BFAngle < 90)
+            if (BFAngle < 100)
             { 
                 return true;
             }
@@ -359,21 +348,37 @@ namespace _3D_Engine_00
 
         private void Console_2D_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.W || e.KeyCode == Keys.Up)
+            if (e.KeyCode == Keys.W)
             {
-                CameraXYZ.z = CameraXYZ.z - 0.1;
             }
-            if (e.KeyCode == Keys.S || e.KeyCode == Keys.Down)
+            if (e.KeyCode == Keys.S)
             {
-                CameraXYZ.z = CameraXYZ.z + 0.1;
             }
-            if (e.KeyCode == Keys.A || e.KeyCode == Keys.Left)
+            if (e.KeyCode == Keys.A)
             {
-                CameraXYZ.x = CameraXYZ.x + 0.1;
             }
-            if (e.KeyCode == Keys.D || e.KeyCode == Keys.Right)
+            if (e.KeyCode == Keys.D)
             {
-                CameraXYZ.x = CameraXYZ.x - 0.1;
+            }
+            if (e.KeyCode == Keys.Q)
+            {
+                yaw -= 2;
+            }
+            if (e.KeyCode == Keys.E)
+            {
+                yaw += 2;
+            }
+            if (e.KeyCode == Keys.Up)
+            {
+            }
+            if (e.KeyCode == Keys.Down)
+            {
+            }
+            if (e.KeyCode == Keys.Left)
+            {
+            }
+            if (e.KeyCode == Keys.Right)
+            {
             }
         }
         
@@ -381,11 +386,11 @@ namespace _3D_Engine_00
         {
             if (e.Delta > 0)
             {
-                CameraXYZ.z = CameraXYZ.z - 0.2;
+                CameraXYZ.z -= 0.1;
             }
             else if (e.Delta < 0)
             {
-                CameraXYZ.z = CameraXYZ.z + 0.2;
+                CameraXYZ.z += 0.1;
             }
         }
     }
