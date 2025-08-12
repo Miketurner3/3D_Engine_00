@@ -24,8 +24,9 @@ namespace _3D_Engine_00
 
     public partial class Console_2D : Form
     {
-        Vector3 RoXYZ = new Vector3(3, 5, 0);
+        Vector3 RoXYZ = new Vector3(4, 7, 0);
         public Vector3 CameraXYZ = new Vector3(0,0,0);
+        public Vector3 CameraRotation = new Vector3(0,0,-1);
 
         public static int ScreenWidth = 1000;
         public static int ScreenHeight = 600;
@@ -41,8 +42,11 @@ namespace _3D_Engine_00
         public Console_2D()
         {
             InitializeComponent();
+            this.MouseWheel += Console_2D_MouseWheel;
         }
-        
+
+
+
         private void timer1_Tick(object sender, EventArgs e)
         {
             Invalidate();
@@ -207,38 +211,12 @@ namespace _3D_Engine_00
 
         private Triangle OffSet(Triangle triangle)
         {
-            double Offset = 2;
+            double Offset = 5;
             triangle.vertices[0].vector.z += Offset;
             triangle.vertices[1].vector.z += Offset;
             triangle.vertices[2].vector.z += Offset;
 
             return triangle;
-        }
-
-        private Color Lighting(Triangle Triangle)
-        {
-            Vector3 lightDirection = new Vector3(0, 0, -1);
-            Vector3 normal = CalcNormal(Triangle);
-
-            // nornalise light
-            double lightMag = Math.Sqrt(lightDirection.x * lightDirection.x + lightDirection.y * lightDirection.y + lightDirection.z * lightDirection.z);
-            lightDirection.x /= lightMag; lightDirection.y /= lightMag; lightDirection.z /= lightMag;
-
-            // dot product ((-90)-1 To (90)1)
-            double dot = normal.x * lightDirection.x + normal.y * lightDirection.y + normal.z * lightDirection.z;
-
-            double angleRadians = Math.Acos(dot);
-            double angleDegrees = angleRadians * 180 / Math.PI;
-
-            double brightness = 1 - (angleDegrees / 90.0);
-            if (brightness < 0) brightness = 0;
-
-            int r = (int)(Triangle.color.R * brightness);
-            int g = (int)(Triangle.color.G * brightness);
-            int b = (int)(Triangle.color.B * brightness);
-
-            Color col = Color.FromArgb(r, g, b);
-            return col;
         }
 
         private Vector3 CalcNormal(Triangle Triangle)
@@ -267,13 +245,38 @@ namespace _3D_Engine_00
 
             return normal;
         }
+        private Color Lighting(Triangle Triangle)
+        {
+            Vector3 lightDirection = new Vector3(0, 0, -1);
+            Vector3 normal = CalcNormal(Triangle);
+
+            // nornalise light
+            double lightMag = Math.Sqrt(lightDirection.x * lightDirection.x + lightDirection.y * lightDirection.y + lightDirection.z * lightDirection.z);
+            lightDirection.x /= lightMag; lightDirection.y /= lightMag; lightDirection.z /= lightMag;
+
+            // dot product ((-90)-1 To (90)1)
+            double dot = normal.x * lightDirection.x + normal.y * lightDirection.y + normal.z * lightDirection.z;
+
+            double angleRadians = Math.Acos(dot);
+            double angleDegrees = angleRadians * 180 / Math.PI;
+
+            double brightness = 1 - (angleDegrees / 90.0);
+            if (brightness < 0) brightness = 0;
+
+            int r = (int)(Triangle.color.R * brightness);
+            int g = (int)(Triangle.color.G * brightness);
+            int b = (int)(Triangle.color.B * brightness);
+
+            Color col = Color.FromArgb(r, g, b);
+            return col;
+        }
 
         private bool BackfaceCulling(Triangle Triangle)
         {
             Vector3 normal = (CalcNormal(Triangle));
-
-            if (normal.z < 0)
-            {
+            double BFAngle = (Math.Acos(normal.x * CameraRotation.x + normal.y * CameraRotation.y + normal.z * CameraRotation.z)) * 180 / Math.PI; ;
+            if (BFAngle < 90)
+            { 
                 return true;
             }
             else
@@ -356,21 +359,33 @@ namespace _3D_Engine_00
 
         private void Console_2D_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.W)
+            if (e.KeyCode == Keys.W || e.KeyCode == Keys.Up)
             {
                 CameraXYZ.z = CameraXYZ.z - 0.1;
             }
-            if (e.KeyCode == Keys.S)
+            if (e.KeyCode == Keys.S || e.KeyCode == Keys.Down)
             {
                 CameraXYZ.z = CameraXYZ.z + 0.1;
             }
-            if (e.KeyCode == Keys.A)
+            if (e.KeyCode == Keys.A || e.KeyCode == Keys.Left)
             {
                 CameraXYZ.x = CameraXYZ.x + 0.1;
             }
-            if (e.KeyCode == Keys.D)
+            if (e.KeyCode == Keys.D || e.KeyCode == Keys.Right)
             {
                 CameraXYZ.x = CameraXYZ.x - 0.1;
+            }
+        }
+        
+        private void Console_2D_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta > 0)
+            {
+                CameraXYZ.z = CameraXYZ.z - 0.2;
+            }
+            else if (e.Delta < 0)
+            {
+                CameraXYZ.z = CameraXYZ.z + 0.2;
             }
         }
     }
