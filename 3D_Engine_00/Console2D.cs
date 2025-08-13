@@ -169,10 +169,10 @@ namespace _3D_Engine_00
                         // - Scale -
                         Triangle = Scaling(Triangle);
 
-                        // - Draw Triangle - 
-                        ZBuffering(Triangle, e);
+                        //// - Draw Triangle - 
+                        //ZBuffering(Triangle, e);
 
-
+                        //SolidBrush brush = new SolidBrush(Triangle.color);
                         //GraphicsPath path = new GraphicsPath();
                         //PointF[] points = new PointF[3];
                         //for (int ip = 0; ip < 3; ip++)
@@ -180,7 +180,7 @@ namespace _3D_Engine_00
                         //    points[ip] = new PointF((float)Triangle.vertices[ip].vector.x, (float)Triangle.vertices[ip].vector.y);
                         //}
                         //path.AddPolygon(points);
-                        //e.Graphics.DrawPath(Pens.Red, path);
+                        //e.Graphics.FillPath(brush, path);
                     }
                 }
             }
