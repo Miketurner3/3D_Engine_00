@@ -169,18 +169,18 @@ namespace _3D_Engine_00
                         // - Scale -
                         Triangle = Scaling(Triangle);
 
-                        //// - Draw Triangle - 
-                        //ZBuffering(Triangle, e);
+                        // - Draw Triangle - 
+                        ZBuffering(Triangle, e);
 
 
-                        GraphicsPath path = new GraphicsPath();
-                        PointF[] points = new PointF[3];
-                        for (int ip = 0; ip < 3; ip++)
-                        {
-                            points[ip] = new PointF((float)Triangle.vertices[ip].vector.x, (float)Triangle.vertices[ip].vector.y);
-                        }
-                        path.AddPolygon(points);
-                        e.Graphics.DrawPath(Pens.Red, path);
+                        //GraphicsPath path = new GraphicsPath();
+                        //PointF[] points = new PointF[3];
+                        //for (int ip = 0; ip < 3; ip++)
+                        //{
+                        //    points[ip] = new PointF((float)Triangle.vertices[ip].vector.x, (float)Triangle.vertices[ip].vector.y);
+                        //}
+                        //path.AddPolygon(points);
+                        //e.Graphics.DrawPath(Pens.Red, path);
                     }
                 }
             }
