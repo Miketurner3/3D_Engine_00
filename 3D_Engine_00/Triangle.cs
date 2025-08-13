@@ -169,10 +169,6 @@ namespace _3D_Engine_00
             int Y_Level = y1;
             double ZValue = z1;
 
-            //DrawPixelEdge(x1, y1, e);
-            //DrawPixelEdge(x2, y1, e);
-
-
             for (int X_Level = x1; X_Level <= x2; X_Level++)
             {
                 if (x1 != x2) 
@@ -254,11 +250,5 @@ namespace _3D_Engine_00
             ClippedList.Add(triangle);
             return ClippedList;
         }
-
-        //public void DrawPixelEdge(int X, int Y, Graphics e)
-        //{
-        //    Brush brush = new SolidBrush(Color.Brown);
-        //    e.FillEllipse(brush, X, Y, 2, 2);
-        //}
     }
 }

@@ -24,8 +24,8 @@ namespace _3D_Engine_00
 
     public partial class Console_2D : Form
     {
-        Vector3 RoXYZ = new Vector3(4, 7, 0);
-        public Vector3 CameraXYZ = new Vector3(0,0,5);
+        Vector3 RoXYZ = new Vector3(2, 3, 1);
+        public Vector3 CameraXYZ = new Vector3(0,0,-5);
         public Vector3 lightDirection = new Vector3(0, 0, -1);
         public double yaw = 0.0;
         public double pitch = 0.0;
@@ -136,6 +136,10 @@ namespace _3D_Engine_00
 
             foreach (Triangle i in Triangles)
             {
+
+                //// - Transform -
+                //RotateXYZ(i);
+
                 // - Copy Triangle -
                 Triangle Triangle = new Triangle(
                     new Vertex(i.vertices[0].vector.x, i.vertices[0].vector.y, i.vertices[0].vector.z),
@@ -143,12 +147,12 @@ namespace _3D_Engine_00
                     new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z),
                     i.color);
 
-                // - Camera - 
-                Triangle = Camera(Triangle);
-
                 // - backface culling -
                 if (BackfaceCulling(Triangle))
                 {
+                    // - Camera - 
+                    Triangle = Camera(Triangle);
+
                     // - Clipping - 
                     List<Triangle> ClippedList = Clipping(Triangle);
 
@@ -165,20 +169,45 @@ namespace _3D_Engine_00
                         // - Scale -
                         Triangle = Scaling(Triangle);
 
-                        // - Draw Triangle - 
-                        ZBuffering(Triangle, e);
+                        //// - Draw Triangle - 
+                        //ZBuffering(Triangle, e);
+
+
+                        GraphicsPath path = new GraphicsPath();
+                        PointF[] points = new PointF[3];
+                        for (int ip = 0; ip < 3; ip++)
+                        {
+                            points[ip] = new PointF((float)Triangle.vertices[ip].vector.x, (float)Triangle.vertices[ip].vector.y);
+                        }
+                        path.AddPolygon(points);
+                        e.Graphics.DrawPath(Pens.Red, path);
                     }
                 }
             }
         }
 
+        //private void RotateXYZ(Triangle i)
+        //{
+        //    i.vertices[0].RotateX(RoXYZ.x);
+        //    i.vertices[0].RotateY(RoXYZ.y);
+        //    i.vertices[0].RotateZ(RoXYZ.z);
+
+        //    i.vertices[1].RotateX(RoXYZ.x);
+        //    i.vertices[1].RotateY(RoXYZ.y);
+        //    i.vertices[1].RotateZ(RoXYZ.z);
+
+        //    i.vertices[2].RotateX(RoXYZ.x);
+        //    i.vertices[2].RotateY(RoXYZ.y);
+        //    i.vertices[2].RotateZ(RoXYZ.z);
+        ////}
+
         private Triangle Camera(Triangle triangle)
         {
             for (int i = 0; i < 3; i++)
             {
-                triangle.vertices[i].vector.x += CameraXYZ.x;
-                triangle.vertices[i].vector.y += CameraXYZ.y;
-                triangle.vertices[i].vector.z += CameraXYZ.z;
+                triangle.vertices[i].vector.x -= CameraXYZ.x;
+                triangle.vertices[i].vector.y -= CameraXYZ.y;
+                triangle.vertices[i].vector.z -= CameraXYZ.z;
 
                 triangle.vertices[i].RotateX(-pitch);
                 triangle.vertices[i].RotateY(-yaw);
@@ -195,9 +224,9 @@ namespace _3D_Engine_00
 
             ZNearList = triangle.ZNearClipping(Near);
 
-            foreach ( Triangle Tri in ZNearList)
+            foreach (Triangle Tri in ZNearList)
             {
-                ClippedList.AddRange(Tri.EdgeClipping(Tri)); 
+                ClippedList.AddRange(Tri.EdgeClipping(Tri));
             }
 
             return ClippedList;
@@ -257,12 +286,11 @@ namespace _3D_Engine_00
 
         private bool BackfaceCulling(Triangle Triangle)
         {
-            Vector3 normal = (CalcNormal(Triangle));
-            double BFAngle = (normal.x * (Triangle.vertices[1].vector.x - CameraXYZ.x) +
-                              normal.y * (Triangle.vertices[1].vector.y - CameraXYZ.y) +
-                              normal.z * (Triangle.vertices[1].vector.z - CameraXYZ.z)) * 
-                              (180/Math.PI);
-            if (BFAngle < 90)
+            Vector3 normal = CalcNormal(Triangle);
+
+            if (normal.x * (CameraXYZ.x - Triangle.vertices[0].vector.x )+
+                normal.y * (CameraXYZ.y - Triangle.vertices[0].vector.y ) +
+                normal.z * (CameraXYZ.z - Triangle.vertices[0].vector.z ) > 0)
             { 
                 return true;
             }
@@ -335,19 +363,19 @@ namespace _3D_Engine_00
 
             if (e.KeyCode == Keys.W)
             {
-                CameraXYZ.y += 0.1;
+                CameraXYZ.y -= 0.1;
             }
             if (e.KeyCode == Keys.S)
             {
-                CameraXYZ.y -= 0.1;
+                CameraXYZ.y += 0.1;
             }
             if (e.KeyCode == Keys.A)
             {
-                CameraXYZ.x += 0.1;
+                CameraXYZ.x -= 0.1;
             }
             if (e.KeyCode == Keys.D)
             {
-                CameraXYZ.x -= 0.1;
+                CameraXYZ.x += 0.1;
             }
             if (e.KeyCode == Keys.Q)
             {
@@ -368,11 +396,11 @@ namespace _3D_Engine_00
             }
             if (e.KeyCode == Keys.Up)
             {
-                CameraXYZ.z -= 0.1;
+                CameraXYZ.z += 0.1;
             }
             if (e.KeyCode == Keys.Down)
             {
-                CameraXYZ.z += 0.1;
+                CameraXYZ.z -= 0.1;
             }
             if (e.KeyCode == Keys.Left)
             {
@@ -386,11 +414,11 @@ namespace _3D_Engine_00
         {
             if (e.Delta > 0)
             {
-                CameraXYZ.z -= 0.2;
+                CameraXYZ.z += 0.2;
             }
             else if (e.Delta < 0)
             {
-                CameraXYZ.z += 0.2;
+                CameraXYZ.z -= 0.2;
             }
         }
     }
