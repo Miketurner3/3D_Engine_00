@@ -25,16 +25,16 @@ namespace _3D_Engine_00
     public partial class Console_2D : Form
     {
         Vector3 RoXYZ = new Vector3(2, 3, 1);
-        public Vector3 CameraXYZ = new Vector3(0,0,-5);
-        public Vector3 lightDirection = new Vector3(0, 0, -1);
-        public double yaw = 0.0;
-        public double pitch = 0.0;
-        public double roll = 0.0;
+        Vector3 CameraXYZ = new Vector3(0,0,-5);
+        Vector3 lightDirection = new Vector3(0, 0, -1);
+        double yaw = 0.0;
+        double pitch = 0.0;
+        double roll = 0.0;
 
 
-        public static int ScreenWidth = 600;
-        public static int ScreenHeight = 600;
-        public double[,] Z_Buffer = new double[ScreenWidth, ScreenHeight];
+        static int ScreenWidth = 1920;
+        static int ScreenHeight = 1080;
+        double[,] Z_Buffer = new double[ScreenWidth, ScreenHeight];
 
         double FOV = 90.0;
         double AspectRatio = (float)ScreenWidth / ScreenHeight;
@@ -42,6 +42,7 @@ namespace _3D_Engine_00
         double Near = 0.5;
 
         List<Triangle> Triangles = new List<Triangle>();
+        List<(Triangle Tri, double MeanZValue)> ZOrderTriangles = new List<(Triangle Tri, double MeanZValue)>();
 
         public Console_2D()
         {
@@ -169,21 +170,58 @@ namespace _3D_Engine_00
                         // - Scale -
                         Triangle = Scaling(Triangle);
 
-                        //// - Draw Triangle - 
-                        //ZBuffering(Triangle, e);
+                        // - Sorting Z Values - 
+                        SortZValue(Triangle);
 
-                        //SolidBrush brush = new SolidBrush(Triangle.color);
-                        //GraphicsPath path = new GraphicsPath();
-                        //PointF[] points = new PointF[3];
-                        //for (int ip = 0; ip < 3; ip++)
-                        //{
-                        //    points[ip] = new PointF((float)Triangle.vertices[ip].vector.x, (float)Triangle.vertices[ip].vector.y);
-                        //}
-                        //path.AddPolygon(points);
-                        //e.Graphics.FillPath(brush, path);
+                        //// - Z-Buffering - 
+                        //ZBuffering(Triangle, e);
                     }
                 }
             }
+
+            // - Dawing Triangles - 
+            DrawTriangles(e);
+        }
+
+        private void DrawTriangles(PaintEventArgs e)
+        {
+            for (int i = 0; i < ZOrderTriangles.Count; i++)
+            {
+                var Tri = ZOrderTriangles[i];
+                Tri.Tri.DrawTriangle(e);
+            }
+            ZOrderTriangles.Clear();
+        }
+
+        private void SortZValue(Triangle triangle)
+        {
+            int i = 0;
+            double MeanZValue = (triangle.vertices[0].vector.z +
+                                triangle.vertices[1].vector.z +
+                                triangle.vertices[2].vector.z) / 3;
+
+            if (ZOrderTriangles.Count == 0)
+            {
+                ZOrderTriangles.Insert(0, (triangle, MeanZValue));
+                return;
+            }
+
+            var Tri = ZOrderTriangles[i];
+
+            while (MeanZValue < Tri.MeanZValue)
+            {
+                i++;
+                try
+                {
+                    Tri = ZOrderTriangles[i];
+                }
+                catch (Exception)
+                {
+                    ZOrderTriangles.Insert(i-1, (triangle, MeanZValue));
+                    return;
+                }
+            }
+            ZOrderTriangles.Insert(i, (triangle, MeanZValue));
         }
 
         //private void RotateXYZ(Triangle i)
@@ -258,6 +296,7 @@ namespace _3D_Engine_00
 
             return normal;
         }
+
         private Color Lighting(Triangle Triangle)
         {
             Vector3 normal = CalcNormal(Triangle);
@@ -324,7 +363,7 @@ namespace _3D_Engine_00
 
             return TriProjected;
         }
-        
+
         private void ZBuffering(Triangle Triangle, PaintEventArgs e)
         {
             Triangle.SortVerticies();
@@ -337,7 +376,7 @@ namespace _3D_Engine_00
                 { DrawTriangle(SplitTList[k], e); }
             }
         }
-        
+
         private void DrawTriangle(Triangle Triangle, PaintEventArgs e)
         {
             int TriState = 0;
@@ -350,7 +389,7 @@ namespace _3D_Engine_00
                 TriState = 1;
             }
 
-            for (int Y_Level = minY; Y_Level <= maxY ; Y_Level++)
+            for (int Y_Level = minY; Y_Level <= maxY; Y_Level++)
             {
                 Vector3[] EdgePixlesForLine = Triangle.FindEdgePixles(Y_Level, TriState);
                 Z_Buffer = Triangle.DrawZValuesInEachPixelForLine(EdgePixlesForLine, Z_Buffer, e.Graphics, ScreenWidth, ScreenHeight);

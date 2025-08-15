@@ -13,7 +13,7 @@ namespace _3D_Engine_00
     {
         public Vertex[] vertices = new Vertex[3];
         public Color color;
-        
+
         public Triangle(Vertex v1, Vertex v2, Vertex v3, Color color_)
         {
             {
@@ -24,9 +24,9 @@ namespace _3D_Engine_00
                 color = color_;
             }
         }
-        
+
         public Color GetColor() { return color; }
-        
+
         public void SortVerticies()
         {
             List<Vertex> vertsy = vertices.OrderBy(v => v.vector.y).ToList();
@@ -61,7 +61,7 @@ namespace _3D_Engine_00
 
             return SplitTList;
         }
-        
+
         public Vector3[] FindEdgePixles(int y, int TriState)
         {
             Vector3[] EdgePixles = new Vector3[2];
@@ -138,7 +138,7 @@ namespace _3D_Engine_00
                 return null;
             }
         }
-        
+
         public double[,] DrawZValuesInEachPixelForLine(Vector3[] EdgePixles, double[,] Z_Buffer, Graphics e, int W, int H)
         {
 
@@ -161,7 +161,7 @@ namespace _3D_Engine_00
                 x1 = -1; x2 = -1;
             }
 
-            if (x1 < 1 && x2 > 0 )
+            if (x1 < 1 && x2 > 0)
             {
                 x1 = 0;
             }
@@ -171,14 +171,14 @@ namespace _3D_Engine_00
 
             for (int X_Level = x1; X_Level <= x2; X_Level++)
             {
-                if (x1 != x2) 
-                { 
+                if (x1 != x2)
+                {
                     ZValue = z1 + (Convert.ToSingle(z2 - z1) / (x2 - x1)) * (X_Level - x1);
                 }
 
-                if (X_Level >=  W || X_Level < 0 || Y_Level >=  H || Y_Level < 0) 
-                { 
-                    break; 
+                if (X_Level >= W || X_Level < 0 || Y_Level >= H || Y_Level < 0)
+                {
+                    break;
                 }
 
                 if (ZValue < Z_Buffer[X_Level, Y_Level])
@@ -186,15 +186,15 @@ namespace _3D_Engine_00
                     Z_Buffer[X_Level, Y_Level] = ZValue;
                     DrawPixel(X_Level, Y_Level, e);
                 }
-            } 
+            }
 
             return Z_Buffer;
         }
-        
+
         public void DrawPixel(int X, int Y, Graphics e)
         {
             Brush brush = new SolidBrush(color);
-            e.FillEllipse(brush, X, Y, 2, 2);   
+            e.FillEllipse(brush, X, Y, 2, 2);
         }
 
         internal List<Triangle> ZNearClipping(double Near)
@@ -204,7 +204,8 @@ namespace _3D_Engine_00
             var verts = new (Vertex v, bool inside)[3];
             double x = 0; double y = 0; double z = Near;
 
-            for (int i = 0; i < 3; i++)   {
+            for (int i = 0; i < 3; i++)
+            {
                 verts[i] = (vertices[i], vertices[i].vector.z >= Near);
             }
 
@@ -249,6 +250,19 @@ namespace _3D_Engine_00
 
             ClippedList.Add(triangle);
             return ClippedList;
+        }
+
+        internal void DrawTriangle(PaintEventArgs e)
+        {
+            SolidBrush brush = new SolidBrush(color);
+            GraphicsPath path = new GraphicsPath();
+            PointF[] points = new PointF[3];
+            for (int i = 0; i < 3; i++)
+            {
+                points[i] = new PointF((float)vertices[i].vector.x, (float)vertices[i].vector.y);
+            }
+            path.AddPolygon(points);
+            e.Graphics.FillPath(brush, path);
         }
     }
 }
