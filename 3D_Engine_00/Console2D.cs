@@ -32,8 +32,8 @@ namespace _3D_Engine_00
         double roll = 0.0;
 
 
-        static int ScreenWidth = 1920;
-        static int ScreenHeight = 1080;
+        static int ScreenWidth = 600;
+        static int ScreenHeight = 600;
         double[,] Z_Buffer = new double[ScreenWidth, ScreenHeight];
 
         double FOV = 90.0;
@@ -154,8 +154,8 @@ namespace _3D_Engine_00
                     // - Camera - 
                     Triangle = Camera(Triangle);
 
-                    // - Clipping - 
-                    List<Triangle> ClippedList = Clipping(Triangle);
+                    // - Near Clipping - 
+                    List<Triangle> ClippedList = Triangle.ZNearClipping(Near);
 
                     foreach (Triangle Tri in ClippedList)
                     {
@@ -170,11 +170,12 @@ namespace _3D_Engine_00
                         // - Scale -
                         Triangle = Scaling(Triangle);
 
-                        // - Sorting Z Values - 
-                        SortZValue(Triangle);
-
-                        //// - Z-Buffering - 
-                        //ZBuffering(Triangle, e);
+                        // - Edge Clipping - 
+                        if(Triangle.EdgeClipping(ScreenHeight, ScreenWidth))
+                        {
+                            // - Sorting Z Values - 
+                            SortZValue(Triangle);
+                        }
                     }
                 }
             }
@@ -224,20 +225,20 @@ namespace _3D_Engine_00
             ZOrderTriangles.Insert(i, (triangle, MeanZValue));
         }
 
-        //private void RotateXYZ(Triangle i)
-        //{
-        //    i.vertices[0].RotateX(RoXYZ.x);
-        //    i.vertices[0].RotateY(RoXYZ.y);
-        //    i.vertices[0].RotateZ(RoXYZ.z);
+        private void RotateXYZ(Triangle i)
+        {
+            i.vertices[0].RotateX(RoXYZ.x);
+            i.vertices[0].RotateY(RoXYZ.y);
+            i.vertices[0].RotateZ(RoXYZ.z);
 
-        //    i.vertices[1].RotateX(RoXYZ.x);
-        //    i.vertices[1].RotateY(RoXYZ.y);
-        //    i.vertices[1].RotateZ(RoXYZ.z);
+            i.vertices[1].RotateX(RoXYZ.x);
+            i.vertices[1].RotateY(RoXYZ.y);
+            i.vertices[1].RotateZ(RoXYZ.z);
 
-        //    i.vertices[2].RotateX(RoXYZ.x);
-        //    i.vertices[2].RotateY(RoXYZ.y);
-        //    i.vertices[2].RotateZ(RoXYZ.z);
-        ////}
+            i.vertices[2].RotateX(RoXYZ.x);
+            i.vertices[2].RotateY(RoXYZ.y);
+            i.vertices[2].RotateZ(RoXYZ.z);
+        }
 
         private Triangle Camera(Triangle triangle)
         {
@@ -253,21 +254,6 @@ namespace _3D_Engine_00
             }
 
             return triangle;
-        }
-
-        private List<Triangle> Clipping(Triangle triangle)
-        {
-            List<Triangle> ClippedList = new List<Triangle>();
-            List<Triangle> ZNearList = new List<Triangle>();
-
-            ZNearList = triangle.ZNearClipping(Near);
-
-            foreach (Triangle Tri in ZNearList)
-            {
-                ClippedList.AddRange(Tri.EdgeClipping(Tri));
-            }
-
-            return ClippedList;
         }
 
         private Vector3 CalcNormal(Triangle Triangle)
@@ -364,37 +350,37 @@ namespace _3D_Engine_00
             return TriProjected;
         }
 
-        private void ZBuffering(Triangle Triangle, PaintEventArgs e)
-        {
-            Triangle.SortVerticies();
-            Triangle[] SplitTList = Triangle.SplitTriangle();
+        //private void ZBuffering(Triangle Triangle, PaintEventArgs e)
+        //{
+        //    Triangle.SortVerticies();
+        //    Triangle[] SplitTList = Triangle.SplitTriangle();
 
-            if (SplitTList == null) { DrawTriangle(Triangle, e); }
-            else
-            {
-                for (int k = 0; k <= 1; k++)
-                { DrawTriangle(SplitTList[k], e); }
-            }
-        }
+        //    if (SplitTList == null) { DrawTriangle(Triangle, e); }
+        //    else
+        //    {
+        //        for (int k = 0; k <= 1; k++)
+        //        { DrawTriangle(SplitTList[k], e); }
+        //    }
+        //}
 
-        private void DrawTriangle(Triangle Triangle, PaintEventArgs e)
-        {
-            int TriState = 0;
+        //private void DrawTriangle(Triangle Triangle, PaintEventArgs e)
+        //{
+        //    int TriState = 0;
 
-            int minY = (int)Math.Ceiling(Triangle.vertices[0].vector.y);
-            int maxY = (int)Math.Floor(Triangle.vertices[2].vector.y);
+        //    int minY = (int)Math.Ceiling(Triangle.vertices[0].vector.y);
+        //    int maxY = (int)Math.Floor(Triangle.vertices[2].vector.y);
 
-            if (Math.Round(Triangle.vertices[0].vector.y) == Math.Round(Triangle.vertices[1].vector.y))
-            {
-                TriState = 1;
-            }
+        //    if (Math.Round(Triangle.vertices[0].vector.y) == Math.Round(Triangle.vertices[1].vector.y))
+        //    {
+        //        TriState = 1;
+        //    }
 
-            for (int Y_Level = minY; Y_Level <= maxY; Y_Level++)
-            {
-                Vector3[] EdgePixlesForLine = Triangle.FindEdgePixles(Y_Level, TriState);
-                Z_Buffer = Triangle.DrawZValuesInEachPixelForLine(EdgePixlesForLine, Z_Buffer, e.Graphics, ScreenWidth, ScreenHeight);
-            }
-        }
+        //    for (int Y_Level = minY; Y_Level <= maxY; Y_Level++)
+        //    {
+        //        Vector3[] EdgePixlesForLine = Triangle.FindEdgePixles(Y_Level, TriState);
+        //        Z_Buffer = Triangle.DrawZValuesInEachPixelForLine(EdgePixlesForLine, Z_Buffer, e.Graphics, ScreenWidth, ScreenHeight);
+        //    }
+        //}
 
         private void Console_2D_KeyDown(object sender, KeyEventArgs e)
         {
@@ -402,11 +388,11 @@ namespace _3D_Engine_00
 
             if (e.KeyCode == Keys.W)
             {
-                CameraXYZ.y -= 0.1;
+                CameraXYZ.z += 0.1;
             }
             if (e.KeyCode == Keys.S)
             {
-                CameraXYZ.y += 0.1;
+                CameraXYZ.z -= 0.1;
             }
             if (e.KeyCode == Keys.A)
             {
