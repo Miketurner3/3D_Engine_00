@@ -18,36 +18,31 @@ using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Security.AccessControl;
 
 namespace _3D_Engine_00
 {
 
     public partial class Console_2D : Form
     {
-        Vector3 RoXYZ = new Vector3(2, 3, 1);
-        Vector3 CameraXYZ = new Vector3(0,0,-5);
+        Vector3 CameraXYZ = new Vector3(0, 0, -5);
         Vector3 lightDirection = new Vector3(0, 0, -1);
-        double yaw = 0.0;
-        double pitch = 0.0;
-        double roll = 0.0;
+        int MetoriteAmount = 10;
 
-
-        static int ScreenWidth = 600;
-        static int ScreenHeight = 600;
+        static int ScreenWidth = 1000;
+        static int ScreenHeight = 1000;
         double[,] Z_Buffer = new double[ScreenWidth, ScreenHeight];
 
         double FOV = 90.0;
         double AspectRatio = (float)ScreenWidth / ScreenHeight;
         double Far = 1000.0;
         double Near = 0.5;
-
-        List<Triangle> Triangles = new List<Triangle>();
+        List<Object> Objects = new List<Object>();
         List<(Triangle Tri, double MeanZValue)> ZOrderTriangles = new List<(Triangle Tri, double MeanZValue)>();
 
         public Console_2D()
         {
             InitializeComponent();
-            this.MouseWheel += Console_2D_MouseWheel;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -69,39 +64,53 @@ namespace _3D_Engine_00
 
         private void ReadOBJFile()
         {
+            // Read File
+            using (StreamReader File = new StreamReader("Ship.obj"))
+            {
+                ObjectReader(File, "Ship", 0);
+            }
+            for (int i = 0; i < MetoriteAmount; i++)
+            {
+                using (StreamReader File = new StreamReader("Metorite.obj"))
+                {
+                    ObjectReader(File, "Metorite", i);
+                }
+            }
+        }
+        private void ObjectReader(StreamReader File, string Name, int indexer)
+        {
+            List<Triangle> Triangles = new List<Triangle>();
             List<Vertex> Verticies = new List<Vertex>();
             double[] V = new double[3];
             string Line;
 
-            // Read File
-            using (StreamReader File = new StreamReader("Object.obj"))
+            while ((Line = File.ReadLine()) != null)
             {
-                while ((Line = File.ReadLine()) != null)
+                if (Line[0] == 'v')
                 {
-                    if (Line[0] == 'v')
-                    {
-                        ObjStrToInt(Line, V);
-                        Verticies.Add(new Vertex(V[0], V[1], V[2]));
-                        
-                    }
-                    else if (Line[0] == 'f')
-                    {
-                        ObjStrToInt(Line, V);
+                    ObjStrToInt(Line, V);
+                    Verticies.Add(new Vertex(V[0], V[1], V[2]));
 
-                        Triangles.Add(new Triangle(
-                            new Vertex(Verticies[(int)(V[0] - 1)].vector.x, Verticies[(int)(V[0] - 1)].vector.y, Verticies[(int)(V[0] - 1)].vector.z),
-                            new Vertex(Verticies[(int)(V[1] - 1)].vector.x, Verticies[(int)(V[1] - 1)].vector.y, Verticies[(int)(V[1] - 1)].vector.z),
-                            new Vertex(Verticies[(int)(V[2] - 1)].vector.x, Verticies[(int)(V[2] - 1)].vector.y, Verticies[(int)(V[2] - 1)].vector.z),
-                            Color.DeepPink));
-                    }
-                    else
-                    {
-                        continue;
-                    }
+                }
+                else if (Line[0] == 'f')
+                {
+                    ObjStrToInt(Line, V);
+
+                    Triangles.Add(new Triangle(
+                        new Vertex(Verticies[(int)(V[0] - 1)].vector.x, Verticies[(int)(V[0] - 1)].vector.y, Verticies[(int)(V[0] - 1)].vector.z),
+                        new Vertex(Verticies[(int)(V[1] - 1)].vector.x, Verticies[(int)(V[1] - 1)].vector.y, Verticies[(int)(V[1] - 1)].vector.z),
+                        new Vertex(Verticies[(int)(V[2] - 1)].vector.x, Verticies[(int)(V[2] - 1)].vector.y, Verticies[(int)(V[2] - 1)].vector.z),
+                        Color.DeepPink));
+                }
+                else
+                {
+                    continue;
                 }
             }
+            Name = Name + indexer;
+            Objects.Add(new Object(Name, Triangles));
         }
-
+   
         private double[] ObjStrToInt(string Line, double[] V)
         {
             int j = 0;
@@ -135,46 +144,49 @@ namespace _3D_Engine_00
         {
             SetBuffer();
 
-            foreach (Triangle i in Triangles)
+            foreach (Object item in Objects)
             {
-
-                //// - Transform -
-                //RotateXYZ(i);
-
-                // - Copy Triangle -
-                Triangle Triangle = new Triangle(
-                    new Vertex(i.vertices[0].vector.x, i.vertices[0].vector.y, i.vertices[0].vector.z),
-                    new Vertex(i.vertices[1].vector.x, i.vertices[1].vector.y, i.vertices[1].vector.z),
-                    new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z),
-                    i.color);
-
-                // - backface culling -
-                if (BackfaceCulling(Triangle))
+                foreach (Triangle i in item.ObjectTriangles)
                 {
-                    // - Camera - 
-                    Triangle = Camera(Triangle);
+                    //// - Transform -
 
-                    // - Near Clipping - 
-                    List<Triangle> ClippedList = Triangle.ZNearClipping(Near);
+                    //RotateXYZ(i);
 
-                    foreach (Triangle Tri in ClippedList)
+                    // - Copy Triangle -
+                    Triangle Triangle = new Triangle(
+                        new Vertex(i.vertices[0].vector.x, i.vertices[0].vector.y, i.vertices[0].vector.z),
+                        new Vertex(i.vertices[1].vector.x, i.vertices[1].vector.y, i.vertices[1].vector.z),
+                        new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z),
+                        i.color);
+
+                    // - backface culling -
+                    if (BackfaceCulling(Triangle))
                     {
-                        Triangle = Tri;
+                        //// - Camera - 
+                        //Triangle = Camera(Triangle);
 
-                        // - lighting -
-                        Triangle.color = Lighting(Triangle);
+                        // - Near Clipping - 
+                        List<Triangle> ClippedList = Triangle.ZNearClipping(Near);
 
-                        // - Perspective -
-                        Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
-
-                        // - Scale -
-                        Triangle = Scaling(Triangle);
-
-                        // - Edge Clipping - 
-                        if(Triangle.EdgeClipping(ScreenHeight, ScreenWidth))
+                        foreach (Triangle Tri in ClippedList)
                         {
-                            // - Sorting Z Values - 
-                            SortZValue(Triangle);
+                            Triangle = Tri;
+
+                            // - lighting -
+                            Triangle.color = Lighting(Triangle);
+
+                            // - Perspective -
+                            Triangle = Projection(Triangle, FOV, AspectRatio, Near, Far);
+
+                            // - Scale -
+                            Triangle = Scaling(Triangle);
+
+                            // - Edge Clipping - 
+                            if (Triangle.EdgeClipping(ScreenHeight, ScreenWidth))
+                            {
+                                // - Sorting Z Values - 
+                                SortZValue(Triangle);
+                            }
                         }
                     }
                 }
@@ -225,21 +237,20 @@ namespace _3D_Engine_00
             ZOrderTriangles.Insert(i, (triangle, MeanZValue));
         }
 
-        private void RotateXYZ(Triangle i)
-        {
-            i.vertices[0].RotateX(RoXYZ.x);
-            i.vertices[0].RotateY(RoXYZ.y);
-            i.vertices[0].RotateZ(RoXYZ.z);
+        //private void RotateXYZ(Triangle i)
+        //{
+        //    i.vertices[0].RotateX(RoXYZ.x);
+        //    i.vertices[0].RotateY(RoXYZ.y);
+        //    i.vertices[0].RotateZ(RoXYZ.z);
 
-            i.vertices[1].RotateX(RoXYZ.x);
-            i.vertices[1].RotateY(RoXYZ.y);
-            i.vertices[1].RotateZ(RoXYZ.z);
+        //    i.vertices[1].RotateX(RoXYZ.x);
+        //    i.vertices[1].RotateY(RoXYZ.y);
+        //    i.vertices[1].RotateZ(RoXYZ.z);
 
-            i.vertices[2].RotateX(RoXYZ.x);
-            i.vertices[2].RotateY(RoXYZ.y);
-            i.vertices[2].RotateZ(RoXYZ.z);
-        }
-
+        //    i.vertices[2].RotateX(RoXYZ.x);
+        //    i.vertices[2].RotateY(RoXYZ.y);
+        //    i.vertices[2].RotateZ(RoXYZ.z);
+        //}
         private Triangle Camera(Triangle triangle)
         {
             for (int i = 0; i < 3; i++)
@@ -247,15 +258,10 @@ namespace _3D_Engine_00
                 triangle.vertices[i].vector.x -= CameraXYZ.x;
                 triangle.vertices[i].vector.y -= CameraXYZ.y;
                 triangle.vertices[i].vector.z -= CameraXYZ.z;
-
-                triangle.vertices[i].RotateX(-pitch);
-                triangle.vertices[i].RotateY(-yaw);
-                triangle.vertices[i].RotateZ(-roll);
             }
 
             return triangle;
         }
-
         private Vector3 CalcNormal(Triangle Triangle)
         {
             Vector3 Line1;
@@ -350,101 +356,5 @@ namespace _3D_Engine_00
             return TriProjected;
         }
 
-        //private void ZBuffering(Triangle Triangle, PaintEventArgs e)
-        //{
-        //    Triangle.SortVerticies();
-        //    Triangle[] SplitTList = Triangle.SplitTriangle();
-
-        //    if (SplitTList == null) { DrawTriangle(Triangle, e); }
-        //    else
-        //    {
-        //        for (int k = 0; k <= 1; k++)
-        //        { DrawTriangle(SplitTList[k], e); }
-        //    }
-        //}
-
-        //private void DrawTriangle(Triangle Triangle, PaintEventArgs e)
-        //{
-        //    int TriState = 0;
-
-        //    int minY = (int)Math.Ceiling(Triangle.vertices[0].vector.y);
-        //    int maxY = (int)Math.Floor(Triangle.vertices[2].vector.y);
-
-        //    if (Math.Round(Triangle.vertices[0].vector.y) == Math.Round(Triangle.vertices[1].vector.y))
-        //    {
-        //        TriState = 1;
-        //    }
-
-        //    for (int Y_Level = minY; Y_Level <= maxY; Y_Level++)
-        //    {
-        //        Vector3[] EdgePixlesForLine = Triangle.FindEdgePixles(Y_Level, TriState);
-        //        Z_Buffer = Triangle.DrawZValuesInEachPixelForLine(EdgePixlesForLine, Z_Buffer, e.Graphics, ScreenWidth, ScreenHeight);
-        //    }
-        //}
-
-        private void Console_2D_KeyDown(object sender, KeyEventArgs e)
-        {
-            double Lx = lightDirection.x; double Ly = lightDirection.y; double Lz = lightDirection.z;
-
-            if (e.KeyCode == Keys.W)
-            {
-                CameraXYZ.z += 0.1;
-            }
-            if (e.KeyCode == Keys.S)
-            {
-                CameraXYZ.z -= 0.1;
-            }
-            if (e.KeyCode == Keys.A)
-            {
-                CameraXYZ.x -= 0.1;
-            }
-            if (e.KeyCode == Keys.D)
-            {
-                CameraXYZ.x += 0.1;
-            }
-            if (e.KeyCode == Keys.Q)
-            {
-                yaw -= 2;
-
-                lightDirection.x = (Lx * Math.Cos(0.0349066)) + (Lz * Math.Sin(0.0349066));
-                lightDirection.y = (Ly * 1);
-                lightDirection.z = (Lx * -Math.Sin(0.0349066)) + (Lz * Math.Cos(0.0349066));
-
-            }
-            if (e.KeyCode == Keys.E)
-            {
-                yaw += 2;
-
-                lightDirection.x = (Lx * Math.Cos(-0.0349066)) + (Lz * Math.Sin(-0.0349066));
-                lightDirection.y = (Ly * 1);
-                lightDirection.z = (Lx * -Math.Sin(-0.0349066)) + (Lz * Math.Cos(-0.0349066));
-            }
-            if (e.KeyCode == Keys.Up)
-            {
-                CameraXYZ.z += 0.1;
-            }
-            if (e.KeyCode == Keys.Down)
-            {
-                CameraXYZ.z -= 0.1;
-            }
-            if (e.KeyCode == Keys.Left)
-            {
-            }
-            if (e.KeyCode == Keys.Right)
-            {
-            }
-        }
-        
-        private void Console_2D_MouseWheel(object sender, MouseEventArgs e)
-        {
-            if (e.Delta > 0)
-            {
-                CameraXYZ.z += 0.2;
-            }
-            else if (e.Delta < 0)
-            {
-                CameraXYZ.z -= 0.2;
-            }
-        }
     }
 }

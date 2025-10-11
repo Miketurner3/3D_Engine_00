@@ -52,6 +52,7 @@
     <Compile Include="Console2D.Designer.cs">
       <DependentUpon>Console2D.cs</DependentUpon>
     </Compile>
+    <Compile Include="Object.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Triangle.cs" />
