@@ -11,15 +11,18 @@ namespace _3D_Engine_00
         public string Name;
         public List<Triangle> ObjectTriangles = new List<Triangle>();
         public Vector3 Rotation;
-        public double Velocity;
+        public Vector3 Velocity;
+        public Vector3 Location;
 
 
-        public Object(string _Name, List<Triangle> _ObjectTriangles, Vector3 _Rotation, double _Velocity)
+
+        public Object(string _Name, List<Triangle> _ObjectTriangles, Vector3 _Rotation, Vector3 _Velocity, Vector3 location)
         {
             Name = _Name;
             ObjectTriangles = _ObjectTriangles;
             Rotation = _Rotation;
             Velocity = _Velocity;
+            Location = location;
         }
     }
 }

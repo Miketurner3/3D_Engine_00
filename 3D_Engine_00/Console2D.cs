@@ -25,12 +25,13 @@ namespace _3D_Engine_00
 
     public partial class Console_2D : Form
     {
-        Vector3 CameraXYZ = new Vector3(0, 0, -5);
+        public static Random Randint = new Random();
+        Vector3 CameraXYZ = new Vector3(0, 0, -4);
         Vector3 lightDirection = new Vector3(0, 0, -1);
-        int MetoriteAmount = 10;
+        int MetoriteAmount = 25;
 
-        static int ScreenWidth = 1000;
-        static int ScreenHeight = 1000;
+        static int ScreenWidth = 600;
+        static int ScreenHeight = 600;
         double[,] Z_Buffer = new double[ScreenWidth, ScreenHeight];
 
         double FOV = 90.0;
@@ -52,7 +53,7 @@ namespace _3D_Engine_00
         
         private void Console_Load(object sender, EventArgs e)
         {
-            this.BackColor = Color.Orange;
+            this.BackColor = Color.Black;
             this.Width = ScreenWidth;
             this.Height = ScreenHeight;
             this.DoubleBuffered = true;
@@ -77,10 +78,14 @@ namespace _3D_Engine_00
                 }
             }
         }
+
         private void ObjectReader(StreamReader File, string Name, int indexer)
         {
             List<Triangle> Triangles = new List<Triangle>();
             List<Vertex> Verticies = new List<Vertex>();
+            double RandLocY = Randint.NextDouble() * Randint.Next(-5, 5);
+            double RandLocX = Randint.NextDouble() * Randint.Next(-5, 5);
+            double RandLocZ = Randint.Next(5, 50);
             double[] V = new double[3];
             string Line;
 
@@ -88,19 +93,27 @@ namespace _3D_Engine_00
             {
                 if (Line[0] == 'v')
                 {
-                    ObjStrToInt(Line, V);
-                    Verticies.Add(new Vertex(V[0], V[1], V[2]));
+                    if (Name == "Ship")
+                    {
+                        ObjStrToInt(Line, ref V);
+                        Verticies.Add(new Vertex(V[0], V[1], V[2]));
+                    }
+                    else
+                    {
+                        ObjStrToInt(Line, ref V);
+                        Verticies.Add(new Vertex(V[0], V[1], V[2]));
+                    }
 
                 }
                 else if (Line[0] == 'f')
                 {
-                    ObjStrToInt(Line, V);
+                    ObjStrToInt(Line, ref V);
 
                     Triangles.Add(new Triangle(
                         new Vertex(Verticies[(int)(V[0] - 1)].vector.x, Verticies[(int)(V[0] - 1)].vector.y, Verticies[(int)(V[0] - 1)].vector.z),
                         new Vertex(Verticies[(int)(V[1] - 1)].vector.x, Verticies[(int)(V[1] - 1)].vector.y, Verticies[(int)(V[1] - 1)].vector.z),
                         new Vertex(Verticies[(int)(V[2] - 1)].vector.x, Verticies[(int)(V[2] - 1)].vector.y, Verticies[(int)(V[2] - 1)].vector.z),
-                        Color.DeepPink));
+                        Color.LightGray));
                 }
                 else
                 {
@@ -108,10 +121,24 @@ namespace _3D_Engine_00
                 }
             }
             Name = Name + indexer;
-            Objects.Add(new Object(Name, Triangles));
+            if (Name == "Ship0")
+            {
+                Objects.Add(new Object(Name, Triangles, new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0,0.4,-3)));
+            }
+            else
+            {
+                double VelZ = Randint.NextDouble();
+                if (VelZ < 0.35)
+                {
+                    VelZ = 0.35;
+                }
+                Objects.Add(new Object(Name, Triangles, new Vector3(Randint.Next(-10, 10), Randint.Next(-10, 10), Randint.Next(-10, 10)),
+                            new Vector3(0, 0, -1 * VelZ), 
+                            new Vector3(RandLocX,RandLocY,RandLocZ)));
+            }
         }
    
-        private double[] ObjStrToInt(string Line, double[] V)
+        private void ObjStrToInt(string Line, ref double[] V)
         {
             int j = 0;
             string VStr = "";
@@ -129,8 +156,6 @@ namespace _3D_Engine_00
                 V[i] = Convert.ToDouble(VStr);
                 VStr = "";
             }
-
-            return V;
         }
 
         private void SetBuffer()
@@ -146,11 +171,11 @@ namespace _3D_Engine_00
 
             foreach (Object item in Objects)
             {
+                AddVel(item);
                 foreach (Triangle i in item.ObjectTriangles)
                 {
-                    //// - Transform -
-
-                    //RotateXYZ(i);
+                    // - Rotate - 
+                    Rotate(i, item);
 
                     // - Copy Triangle -
                     Triangle Triangle = new Triangle(
@@ -159,11 +184,14 @@ namespace _3D_Engine_00
                         new Vertex(i.vertices[2].vector.x, i.vertices[2].vector.y, i.vertices[2].vector.z),
                         i.color);
 
+                    // - Transform -
+                    Transverse(Triangle, item);
+
                     // - backface culling -
                     if (BackfaceCulling(Triangle))
                     {
                         //// - Camera - 
-                        //Triangle = Camera(Triangle);
+                        Triangle = Camera(Triangle);
 
                         // - Near Clipping - 
                         List<Triangle> ClippedList = Triangle.ZNearClipping(Near);
@@ -194,6 +222,45 @@ namespace _3D_Engine_00
 
             // - Dawing Triangles - 
             DrawTriangles(e);
+        }
+
+        private void AddVel(Object item)
+        {
+            item.Location.x += item.Velocity.x;
+            item.Location.y += item.Velocity.y;
+            item.Location.z += item.Velocity.z;
+
+        }
+
+        private void Rotate(Triangle i, Object item)
+        {
+            i.vertices[0].RotateX(item.Rotation.x);
+            i.vertices[0].RotateY(item.Rotation.y);
+            i.vertices[0].RotateZ(item.Rotation.z);
+
+            i.vertices[1].RotateX(item.Rotation.x);
+            i.vertices[1].RotateY(item.Rotation.y);
+            i.vertices[1].RotateZ(item.Rotation.z);
+
+            i.vertices[2].RotateX(item.Rotation.x);
+            i.vertices[2].RotateY(item.Rotation.y);
+            i.vertices[2].RotateZ(item.Rotation.z);
+        }
+
+        private void Transverse(Triangle i, Object item)
+        {
+            i.vertices[0].vector.x += item.Location.x;
+            i.vertices[0].vector.y += item.Location.y;
+            i.vertices[0].vector.z += item.Location.z;
+
+            i.vertices[1].vector.x += item.Location.x;
+            i.vertices[1].vector.y += item.Location.y;
+            i.vertices[1].vector.z += item.Location.z;
+
+            i.vertices[2].vector.x += item.Location.x;
+            i.vertices[2].vector.y += item.Location.y;
+            i.vertices[2].vector.z += item.Location.z;
+
         }
 
         private void DrawTriangles(PaintEventArgs e)
@@ -237,20 +304,6 @@ namespace _3D_Engine_00
             ZOrderTriangles.Insert(i, (triangle, MeanZValue));
         }
 
-        //private void RotateXYZ(Triangle i)
-        //{
-        //    i.vertices[0].RotateX(RoXYZ.x);
-        //    i.vertices[0].RotateY(RoXYZ.y);
-        //    i.vertices[0].RotateZ(RoXYZ.z);
-
-        //    i.vertices[1].RotateX(RoXYZ.x);
-        //    i.vertices[1].RotateY(RoXYZ.y);
-        //    i.vertices[1].RotateZ(RoXYZ.z);
-
-        //    i.vertices[2].RotateX(RoXYZ.x);
-        //    i.vertices[2].RotateY(RoXYZ.y);
-        //    i.vertices[2].RotateZ(RoXYZ.z);
-        //}
         private Triangle Camera(Triangle triangle)
         {
             for (int i = 0; i < 3; i++)
@@ -262,6 +315,7 @@ namespace _3D_Engine_00
 
             return triangle;
         }
+
         private Vector3 CalcNormal(Triangle Triangle)
         {
             Vector3 Line1;

@@ -52,7 +52,6 @@
             this.Text = "2D Console";
             this.Load += new System.EventHandler(this.Console_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Console_2D_Paint);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Console_2D_KeyDown);
             this.ResumeLayout(false);
 
         }
