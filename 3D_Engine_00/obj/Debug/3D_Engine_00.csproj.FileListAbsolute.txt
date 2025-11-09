@@ -1,0 +1,11 @@
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\bin\Debug\3D_Engine_00.exe.config
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\bin\Debug\3D_Engine_00.exe
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\bin\Debug\3D_Engine_00.pdb
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\obj\Debug\3D_Engine_00.csproj.AssemblyReference.cache
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\obj\Debug\3D_Engine_00.csproj.SuggestedBindingRedirects.cache
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\obj\Debug\_3D_Engine_00.Console_2D.resources
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\obj\Debug\_3D_Engine_00.Properties.Resources.resources
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\obj\Debug\3D_Engine_00.csproj.GenerateResource.cache
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\obj\Debug\3D_Engine_00.csproj.CoreCompileInputs.cache
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\obj\Debug\3D_Engine_00.exe
+C:\Users\mikep\OneDrive\Desktop\engine\3D_Engine_00\3D_Engine_00\obj\Debug\3D_Engine_00.pdb
