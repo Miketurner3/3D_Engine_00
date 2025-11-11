@@ -29,9 +29,9 @@ namespace _3D_Engine_00
         Vector3 CameraXYZ = new Vector3(0, 0, -4);
         Vector3 lightDirection = new Vector3(0, 0, -1);
         int MetoriteAmount = 25;
-
-        static int ScreenWidth = 600;
-        static int ScreenHeight = 600;
+        double[] WASD = {0,0};
+        static int ScreenWidth = 800;
+        static int ScreenHeight = 800;
         double[,] Z_Buffer = new double[ScreenWidth, ScreenHeight];
 
         double FOV = 90.0;
@@ -229,7 +229,6 @@ namespace _3D_Engine_00
             item.Location.x += item.Velocity.x;
             item.Location.y += item.Velocity.y;
             item.Location.z += item.Velocity.z;
-
         }
 
         private void Rotate(Triangle i, Object item)
@@ -260,6 +259,18 @@ namespace _3D_Engine_00
             i.vertices[2].vector.x += item.Location.x;
             i.vertices[2].vector.y += item.Location.y;
             i.vertices[2].vector.z += item.Location.z;
+
+            if (item.Name != "Ship0")
+            {
+                i.vertices[0].vector.x += WASD[0];
+                i.vertices[0].vector.y += WASD[1];
+
+                i.vertices[1].vector.x += WASD[0];
+                i.vertices[1].vector.y += WASD[1];
+
+                i.vertices[2].vector.x += WASD[0];
+                i.vertices[2].vector.y += WASD[1];
+            }
 
         }
 
@@ -410,5 +421,24 @@ namespace _3D_Engine_00
             return TriProjected;
         }
 
+        private void Console_2D_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if(e.KeyChar == 'w')
+            {
+                WASD[1] += 0.3;
+            }
+            if (e.KeyChar == 'a')
+            {
+                WASD[0] += 0.3;
+            }
+            if (e.KeyChar == 's')
+            {
+                WASD[1] -= 0.3;
+            }
+            if (e.KeyChar == 'd')
+            {
+                WASD[0] -= 0.3;
+            }
+        }
     }
 }

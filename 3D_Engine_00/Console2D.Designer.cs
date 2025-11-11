@@ -38,12 +38,13 @@
             // 
             // Console_2D
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(600, 366);
             this.ForeColor = System.Drawing.SystemColors.Control;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Console_2D";
@@ -52,6 +53,7 @@
             this.Text = "2D Console";
             this.Load += new System.EventHandler(this.Console_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Console_2D_Paint);
+            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Console_2D_KeyPress);
             this.ResumeLayout(false);
 
         }
