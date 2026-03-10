@@ -27,7 +27,6 @@ namespace _3D_Engine_00
 
         public Color GetColor() { return color; }
 
-
         internal List<Triangle> ZNearClipping(double Near)
         {
             List<Triangle> clippedTriangles = new List<Triangle>();
