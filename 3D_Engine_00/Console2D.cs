@@ -157,18 +157,9 @@ namespace _3D_Engine_00
                 VStr = "";
             }
         }
-
-        private void SetBuffer()
-        {
-            for (int y = 0; y < ScreenHeight; y++)
-                for (int x = 0; x < ScreenWidth; x++)
-                    Z_Buffer[x, y] = double.MaxValue;
-        }
         
         private void Console_2D_Paint(object sender, PaintEventArgs e)
         {
-            SetBuffer();
-
             foreach (Object item in Objects)
             {
                 AddVel(item);
